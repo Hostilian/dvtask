@@ -50,6 +50,7 @@ public class CacheConfiguration {
             createCache(cm, com.dv.ipsum.domain.User.class.getName());
             createCache(cm, com.dv.ipsum.domain.Authority.class.getName());
             createCache(cm, com.dv.ipsum.domain.User.class.getName() + ".authorities");
+            createCache(cm, com.dv.ipsum.domain.Task.class.getName());
             // jhipster-needle-ehcache-add-entry
         };
     }

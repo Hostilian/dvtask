@@ -8,6 +8,8 @@ services:
       - SPRING_PROFILES_ACTIVE=prod,api-docs
       - MANAGEMENT_PROMETHEUS_METRICS_EXPORT_ENABLED=true
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/jhipsterTaskApp
+      - SPRING_DATASOURCE_USERNAME=jhipsterTaskApp
+      - SPRING_DATASOURCE_PASSWORD=yourStrongPassword
       - SPRING_LIQUIBASE_URL=jdbc:postgresql://postgresql:5432/jhipsterTaskApp
     ports:
       - 127.0.0.1:8080:8080
@@ -27,3 +29,12 @@ services:
     extends:
       file: ./postgresql.yml
       service: postgresql
+    environment:
+      - POSTGRES_DB=jhipsterTaskApp
+      - POSTGRES_USER=jhipsterTaskApp
+      - POSTGRES_PASSWORD=yourStrongPassword
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jhipsterTaskApp"]
+      interval: 5s
+      timeout: 5s
+      retries: 10

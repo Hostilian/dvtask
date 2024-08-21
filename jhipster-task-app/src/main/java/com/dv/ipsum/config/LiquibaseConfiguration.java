@@ -79,3 +79,4 @@ public class LiquibaseConfiguration {
         return liquibase;
     }
 }
+

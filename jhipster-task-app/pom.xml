@@ -35,7 +35,7 @@
         <argLine>-Djava.security.egd=file:/dev/./urandom -Xmx1G</argLine>
         <m2e.apt.activation>jdt_apt</m2e.apt.activation>
         <run.addResources>false</run.addResources>
-        <spring-boot.version>${project.parent.version}</spring-boot.version>
+        <spring-boot.version>3.3.2</spring-boot.version>
         <archunit-junit5.version>1.3.0</archunit-junit5.version>
         <checkstyle.version>10.17.0</checkstyle.version>
         <checksum-maven-plugin.version>1.11</checksum-maven-plugin.version>
@@ -49,7 +49,7 @@
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
         <liquibase-plugin.driver/>
         <liquibase-plugin.hibernate-dialect/>
-        <liquibase-plugin.password/>
+        <!--~~(Cannot invoke "String.equals(Object)" because "this.value" is null)~~>--><liquibase-plugin.password/>
         <liquibase-plugin.url/>
         <liquibase-plugin.username/>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
