@@ -19,6 +19,11 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
     - name: Cache Maven packages
       uses: actions/cache@v3
       with:
@@ -26,15 +31,29 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
 
-    - name: Build and test with Maven
-      run: |
-        cd jhipster-task-app
-        ./mvnw clean verify
+    - name: Cache npm packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: ${{ runner.os }}-node-
 
-    - name: Build Docker image
+    - name: Install dependencies
       run: |
-        cd jhipster-task-app
-        ./mvnw -Pprod clean verify jib:dockerBuild
+        if [ -f package-lock.json ]; then
+          npm ci
+        else
+          npm install
+        fi
+
+    - name: Run backend tests
+      run: ./mvnw clean verify
+
+    - name: Run frontend tests
+      run: npm run test
+
+    - name: Build for production
+      run: ./mvnw -Pprod clean verify jib:dockerBuild
 
   docker:
     needs: build-and-test
@@ -56,6 +75,6 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
-        context: ./jhipster-task-app
+        context: .
         push: true
         tags: ${{ secrets.DOCKER_HUB_USERNAME }}/jhipster-task-app:latest
