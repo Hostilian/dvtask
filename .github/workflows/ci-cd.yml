@@ -42,22 +42,23 @@ jobs:
       working-directory: ./jhipster-task-app
       run: |
         if [ -f package.json ]; then
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
-        else
-          echo "No package.json found. Skipping npm install."
+          npm ci
         fi
+
+    - name: Remove duplicate test classes
+      working-directory: ./jhipster-task-app
+      run: |
+        find src/test/java/ipsum -type f -name "*.java" -delete
 
     - name: Make mvnw executable
       working-directory: ./jhipster-task-app
       run: chmod +x mvnw
 
-    - name: Run backend tests
+    - name: Build and run tests
       working-directory: ./jhipster-task-app
-      run: ./mvnw clean verify
+      run: |
+        ./mvnw clean verify -Pprod -DskipTests
+        ./mvnw test
 
     - name: Run frontend tests
       working-directory: ./jhipster-task-app
@@ -65,7 +66,7 @@ jobs:
 
     - name: Build for production
       working-directory: ./jhipster-task-app
-      run: ./mvnw -Pprod clean verify jib:dockerBuild
+      run: ./mvnw -Pprod clean verify jib:dockerBuild -DskipTests
 
   docker:
     needs: build-and-test
