@@ -40,20 +40,31 @@ jobs:
 
     - name: Install dependencies
       run: |
-        if [ -f package-lock.json ]; then
-          npm ci
+        cd jhipster-task-app
+        if [ -f package.json ]; then
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
         else
-          npm install
+          echo "No package.json found. Skipping npm install."
         fi
 
     - name: Run backend tests
-      run: ./mvnw clean verify
+      run: |
+        cd jhipster-task-app
+        ./mvnw clean verify
 
     - name: Run frontend tests
-      run: npm run test
+      run: |
+        cd jhipster-task-app
+        npm run test
 
     - name: Build for production
-      run: ./mvnw -Pprod clean verify jib:dockerBuild
+      run: |
+        cd jhipster-task-app
+        ./mvnw -Pprod clean verify jib:dockerBuild
 
   docker:
     needs: build-and-test
@@ -75,6 +86,6 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
-        context: .
+        context: ./jhipster-task-app
         push: true
         tags: ${{ secrets.DOCKER_HUB_USERNAME }}/jhipster-task-app:latest
