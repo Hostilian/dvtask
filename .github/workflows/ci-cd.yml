@@ -22,7 +22,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'
+        node-version: '20'
 
     - name: Cache Maven packages
       uses: actions/cache@v3
@@ -39,8 +39,8 @@ jobs:
         restore-keys: ${{ runner.os }}-node-
 
     - name: Install dependencies
+      working-directory: ./jhipster-task-app
       run: |
-        cd jhipster-task-app
         if [ -f package.json ]; then
           if [ -f package-lock.json ]; then
             npm ci
@@ -51,20 +51,21 @@ jobs:
           echo "No package.json found. Skipping npm install."
         fi
 
+    - name: Make mvnw executable
+      working-directory: ./jhipster-task-app
+      run: chmod +x mvnw
+
     - name: Run backend tests
-      run: |
-        cd jhipster-task-app
-        ./mvnw clean verify
+      working-directory: ./jhipster-task-app
+      run: ./mvnw clean verify
 
     - name: Run frontend tests
-      run: |
-        cd jhipster-task-app
-        npm run test
+      working-directory: ./jhipster-task-app
+      run: npm run test
 
     - name: Build for production
-      run: |
-        cd jhipster-task-app
-        ./mvnw -Pprod clean verify jib:dockerBuild
+      working-directory: ./jhipster-task-app
+      run: ./mvnw -Pprod clean verify jib:dockerBuild
 
   docker:
     needs: build-and-test
