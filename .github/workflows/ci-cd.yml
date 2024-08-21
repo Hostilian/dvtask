@@ -39,7 +39,12 @@ jobs:
         restore-keys: ${{ runner.os }}-node-
 
     - name: Install dependencies
-      run: npm ci
+      run: |
+        if [ -f package-lock.json ]; then
+          npm ci
+        else
+          npm install
+        fi
 
     - name: Run backend tests
       run: ./mvnw clean verify
