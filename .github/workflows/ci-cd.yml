@@ -19,18 +19,11 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Cache Maven packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
-
     - name: Grant execute permission for mvnw
-      run: chmod +x ./jhipster-task-app/mvnw
+      run: chmod +x jhipster-task-app/mvnw
 
-    - name: Check mvnw permissions
-      run: ls -l ./jhipster-task-app/mvnw
+    - name: Verify mvnw permissions
+      run: ls -l jhipster-task-app/mvnw
 
     - name: Build with Maven and Jib
       run: |
