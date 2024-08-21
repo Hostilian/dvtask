@@ -27,8 +27,18 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
 
     - name: Build with Maven
-      run: ./mvnw clean package -Pprod verify jib:dockerBuild
+      run: ./mvnw clean verify -Pprod -DskipTests
       working-directory: ./jhipster-task-app
+
+    - name: Run tests
+      run: ./mvnw test
+      working-directory: ./jhipster-task-app
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: jhipster-task-app/target/surefire-reports
 
     - name: Login to Docker Hub
       uses: docker/login-action@v2
@@ -40,20 +50,11 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: ./jhipster-task-app
+        file: ./jhipster-task-app/src/main/docker/Dockerfile.jvm
         push: ${{ github.event_name != 'pull_request' }}
         tags: |
-          watashiwa19/jhipster-task-app:latest
-          watashiwa19/jhipster-task-app:${{ github.sha }}
-
-    - name: Run tests
-      run: ./mvnw test
-      working-directory: ./jhipster-task-app
-
-    - name: Upload test results
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-results
-        path: jhipster-task-app/target/surefire-reports
+          watashiwa19/dvtsk:latest
+          watashiwa19/dvtsk:${{ github.sha }}
 
     - name: Cleanup
       if: always()
