@@ -9,7 +9,6 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
 
@@ -72,7 +71,6 @@ jobs:
     needs: build-and-test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-
     steps:
     - uses: actions/checkout@v3
 
@@ -85,9 +83,7 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v4
-      with:
-        context: ./jhipster-task-app
-        push: true
-        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/jhipster-task-app:latest
+    - name: Tag and push Docker image
+      run: |
+        docker tag jhipster-task-app ${{ secrets.DOCKER_HUB_USERNAME }}/jhipster-task-app:latest
+        docker push ${{ secrets.DOCKER_HUB_USERNAME }}/jhipster-task-app:latest
