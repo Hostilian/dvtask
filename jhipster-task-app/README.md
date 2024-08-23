@@ -25,7 +25,7 @@ npm install
 
 
 -
-This application was generated using JHipster 7.x.x, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v7.x.x](https://www.jhipster.tech/documentation-archive/v7.x.x).
+This application was generated using JHipster 7.x.x, you can find d0cumentation and help at [https://www.jhipster.tech/documentation-archive/v7.x.x](https://www.jhipster.tech/documentation-archive/v7.x.x).
 
 ## Development
 
