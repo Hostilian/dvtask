@@ -2,7 +2,7 @@
 name: jhipstertaskapp
 services:
   app:
-    image: ${DOCKER_HUB_USERNAME}/dvtask:latest
+    image: jhipstertaskapp
     environment:
       - _JAVA_OPTIONS=-Xmx512m -Xms256m
       - SPRING_PROFILES_ACTIVE=prod,api-docs
