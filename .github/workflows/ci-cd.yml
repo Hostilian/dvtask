@@ -34,7 +34,7 @@ jobs:
     - name: Build with Maven and create Docker image
       run: |
         cd jhipster-task-app
-        ./mvnw clean verify -Pprod jib:dockerBuild -DskipTests -Djib.to.image=dvtask:latest
+        ./mvnw clean verify -Pprod jib:dockerBuild -Djib.to.image=dvtask:latest
 
     - name: List Docker images
       run: docker images
