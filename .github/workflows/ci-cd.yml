@@ -34,7 +34,7 @@ jobs:
     - name: Build with Maven and create Docker image
       run: |
         cd jhipster-task-app
-        ./mvnw clean verify -Pprod jib:dockerBuild -DskipTests
+        ./mvnw clean verify -Pprod jib:dockerBuild -DskipTests -Djib.to.image=dvtask:latest
 
     - name: List Docker images
       run: docker images
@@ -47,8 +47,5 @@ jobs:
 
     - name: Push Docker image
       run: |
-        cd jhipster-task-app
-        IMAGE_NAME=$(./mvnw help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
-        IMAGE_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
-        docker tag ${IMAGE_NAME}:${IMAGE_VERSION} ${{ secrets.DOCKER_HUB_USERNAME }}/${IMAGE_NAME}:latest
-        docker push ${{ secrets.DOCKER_HUB_USERNAME }}/${IMAGE_NAME}:latest
+        docker tag dvtask:latest ${{ secrets.DOCKER_HUB_USERNAME }}/dvtask:latest
+        docker push ${{ secrets.DOCKER_HUB_USERNAME }}/dvtask:latest
