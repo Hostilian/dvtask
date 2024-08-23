@@ -47,6 +47,7 @@ jobs:
 
     - name: Push Docker image
       run: |
+        cd jhipster-task-app
         IMAGE_NAME=$(./mvnw help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
         IMAGE_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout)
         docker tag ${IMAGE_NAME}:${IMAGE_VERSION} ${{ secrets.DOCKER_HUB_USERNAME }}/${IMAGE_NAME}:latest
