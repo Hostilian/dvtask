@@ -23,6 +23,11 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
 
+    - name: Remove duplicate test classes
+      run: |
+        cd jhipster-task-app
+        rm -rf src/test/java/ipsum
+
     - name: Make mvnw executable
       run: chmod +x jhipster-task-app/mvnw
 
