@@ -7,29 +7,70 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-push:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-
+    - uses: actions/checkout@v3
     - name: Set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'
-
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
     - name: Cache Maven packages
       uses: actions/cache@v3
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
-
-    - name: Build and push Docker image
-      env:
-        DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-        DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+    - name: Cache npm packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: ${{ runner.os }}-node-
+    - name: Install dependencies
+      working-directory: ./jhipster-task-app
       run: |
-        cd jhipster-task-app
-        chmod +x mvnw
-        ./mvnw -Pprod clean verify jib:build -Djib.to.image=$DOCKER_HUB_USERNAME/dvtsk:latest -Djib.to.auth.username=$DOCKER_HUB_USERNAME -Djib.to.auth.password=$DOCKER_HUB_ACCESS_TOKEN
+        if [ -f package.json ]; then
+          npm ci
+        fi
+    - name: Remove duplicate test classes
+      working-directory: ./jhipster-task-app
+      run: |
+        find src/test/java/ipsum -type f -delete
+    - name: Make mvnw executable
+      working-directory: ./jhipster-task-app
+      run: chmod +x mvnw
+    - name: Build and run tests
+      working-directory: ./jhipster-task-app
+      run: |
+        ./mvnw clean verify -Pprod
+        ./mvnw test
+    - name: Run frontend tests
+      working-directory: ./jhipster-task-app
+      run: npm run test
+    - name: Build for production
+      working-directory: ./jhipster-task-app
+      run: ./mvnw -Pprod clean verify jib:dockerBuild
+
+  docker:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+    - name: Tag and push Docker image
+      run: |
+        docker tag jhipster-task-app ${{ secrets.DOCKER_HUB_USERNAME }}/jhipster-task-app:latest
+        docker push ${{ secrets.DOCKER_HUB_USERNAME }}/jhipster-task-app:latest
