@@ -52,11 +52,8 @@ RUN if [ ! -d ".mvn" ]; then \
     curl -o .mvn/wrapper/maven-wrapper.properties https://raw.githubusercontent.com/takari/maven-wrapper/master/maven-wrapper.properties; \
     fi
 
-# List contents of the working directory
-RUN ls -la
-
 # Expose the port the app runs on
 EXPOSE 8080
 
 # Start the application
-CMD ["sh", "-c", "cd /workspace/app && ./mvnw spring-boot:run"]
+CMD ["./mvnw", "spring-boot:run"]
