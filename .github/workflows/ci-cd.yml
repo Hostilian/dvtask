@@ -11,25 +11,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Debug - List contents of repository
-      run: |
-        echo "Contents of the repository:"
-        ls -R
-        echo "Current working directory:"
-        pwd
-
-    - name: Debug - Check for mvnw file
-      run: |
-        echo "Checking for mvnw file in jhipster-task-app directory:"
-        if [ -f "./jhipster-task-app/mvnw" ]; then
-          echo "mvnw file found"
-          ls -l ./jhipster-task-app/mvnw
-        else
-          echo "mvnw file not found"
-          echo "Contents of jhipster-task-app directory:"
-          ls -la ./jhipster-task-app
-        fi
-
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
@@ -52,12 +33,18 @@ jobs:
         docker pull watashiwa19/latestdvtaskimagethelatest:latest001
         docker inspect watashiwa19/latestdvtaskimagethelatest:latest001
 
-    - name: Test Docker image
+    - name: Run Docker image and capture logs
       run: |
-        echo "Testing Docker image:"
-        docker run --rm watashiwa19/latestdvtaskimagethelatest:latest001 ls -la /workspace/app
-        echo "Checking for mvnw in Docker image:"
-        docker run --rm watashiwa19/latestdvtaskimagethelatest:latest001 ls -l /workspace/app/mvnw
+        docker run -d --name test-container watashiwa19/latestdvtaskimagethelatest:latest001
+        sleep 60  # Wait for the application to start
+        docker logs test-container
+
+    - name: Check application health
+      run: |
+        docker exec test-container curl -f http://localhost:8080/management/health || (echo "Health check failed" && exit 1)
+
+    - name: Clean up
+      run: docker rm -f test-container
 
     - name: Debug - Docker build logs
       if: failure()
