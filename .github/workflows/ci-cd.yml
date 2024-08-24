@@ -26,16 +26,16 @@ jobs:
         context: ./jhipster-task-app
         file: ./jhipster-task-app/.devcontainer/Dockerfile
         push: true
-        tags: watashiwa19/latestdvtaskimagethelatest:latest001
+        tags: watashiwa19/dvtaskimag:latest002
 
     - name: Verify Docker image
       run: |
-        docker pull watashiwa19/latestdvtaskimagethelatest:latest001
-        docker inspect watashiwa19/latestdvtaskimagethelatest:latest001
+        docker pull watashiwa19/dvtaskimag:latest002
+        docker inspect watashiwa19/dvtaskimag:latest002
 
     - name: Run Docker image and capture logs
       run: |
-        docker run -d --name test-container watashiwa19/latestdvtaskimagethelatest:latest001
+        docker run -d --name test-container watashiwa19/dvtaskimag:latest002
         sleep 60  # Wait for the application to start
         docker logs test-container
 
@@ -60,4 +60,4 @@ jobs:
       if: failure()
       run: |
         echo "Docker build logs:"
-        docker buildx build --progress=plain --load -t watashiwa19/latestdvtaskimagethelatest:latest001 -f ./jhipster-task-app/.devcontainer/Dockerfile ./jhipster-task-app
+        docker buildx build --progress=plain --load -t watashiwa19/dvtaskimag:latest002 -f ./jhipster-task-app/.devcontainer/Dockerfile ./jhipster-task-app
