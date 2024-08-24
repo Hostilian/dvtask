@@ -1,15 +1,13 @@
 # See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.209.6/containers/java/.devcontainer/base.Dockerfile
+# [Choice] Java version (use -bullseye variants on local arm64/Apple Silicon): 17, 17-bullseye, 17-buster
 ARG VARIANT="17"
 FROM mcr.microsoft.com/vscode/devcontainers/java:0-${VARIANT}
 
-# [Option] Install Maven
-ARG INSTALL_MAVEN="true"
-ARG MAVEN_VERSION="3.8.4"
-
-# [Option] Install Gradle
 ARG INSTALL_GRADLE="false"
 ARG GRADLE_VERSION=""
 
+RUN if [ "${INSTALL_MAVEN}" = "true" ]; then su vscode -c "umask 0002 && . /usr/local/sdkman/bin/sdkman-init.sh && sdk install maven \"${MAVEN_VERSION}\""; fi \
+    && if [ "${INSTALL_GRADLE}" = "true" ]; then su vscode -c "umask 0002 && . /usr/local/sdkman/bin/sdkman-init.sh && sdk install gradle \"${GRADLE_VERSION}\""; fi
 # Install Maven and Gradle
 RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
     apt-get update && apt-get install -y maven \
@@ -29,7 +27,10 @@ RUN su vscode -c "npm install -g generator-jhipster"
 
 # Install additional tools
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends git curl netcat-openbsd
+    && apt-get -y install --no-install-recommends git
+
+# [Optional] Uncomment this line to install global node packages.
+# RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
 
 # Set the working directory
 WORKDIR /workspace/app
@@ -37,58 +38,11 @@ WORKDIR /workspace/app
 # Copy the application
 COPY . .
 
-# Debug: List contents after copying
-RUN echo "Contents of /workspace/app:" && ls -la
-
-# Generate mvnw if it doesn't exist
-RUN if [ ! -f "mvnw" ]; then \
-        echo "mvnw not found, generating it..."; \
-        mvn -N io.takari:maven:wrapper -Dmaven=3.8.4; \
-    else \
-        echo "mvnw found"; \
-    fi
-
 # Set the correct permissions for the mvnw file
-RUN chmod +x mvnw
-
-# Verify mvnw exists and is executable
-RUN if [ -x "mvnw" ]; then \
-        echo "mvnw is executable"; \
-    else \
-        echo "mvnw is not executable or doesn't exist"; \
-        exit 1; \
-    fi
-
-# Build the application
-RUN ./mvnw clean package -DskipTests
-
-# List contents of the working directory
-RUN echo "Final contents of /workspace/app:" && ls -la
+RUN if [ -f "mvnw" ]; then chmod +x mvnw; fi
 
 # Expose the port the app runs on
 EXPOSE 8080
 
-# Start the application with verbose logging and diagnostics
-CMD ["sh", "-c", "\
-    echo 'Starting application...' && \
-    echo 'Java version:' && java -version && \
-    echo 'Maven version:' && ./mvnw -v && \
-    echo 'Contents of target directory:' && ls -la target && \
-    if [ -f target/*.jar ]; then \
-        java -jar target/*.jar & \
-    else \
-        echo 'JAR file not found in target directory' && \
-        exit 1; \
-    fi && \
-    PID=$! && \
-    (for i in {1..30}; do \
-        sleep 10 && \
-        if nc -z localhost 8080; then \
-            echo 'Application started successfully' && \
-            wait $PID && \
-            exit 0; \
-        fi; \
-    done && \
-    echo 'Application failed to start' && \
-    kill $PID && \
-    exit 1)"]
+# Start the application
+CMD ["./mvnw", "spring-boot:run"]

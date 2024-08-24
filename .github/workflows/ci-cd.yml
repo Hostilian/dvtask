@@ -27,6 +27,11 @@ jobs:
         file: ./jhipster-task-app/.devcontainer/Dockerfile
         push: true
         tags: watashiwa19/latestdvtaskimagethelatest:latest001
+        build-args: |
+          VARIANT=17
+          INSTALL_MAVEN=true
+          INSTALL_GRADLE=true
+          NODE_VERSION=16
 
     - name: Verify Docker image
       run: |
