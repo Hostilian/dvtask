@@ -42,6 +42,10 @@
 ### 🐳 Docker Enchantments 🌊
 - Craft the image:  `./mvnw -Pprod verify jib:dockerBuild`
 - Conjure with Docker Compose:
+  
+   // to compose it using github PIPLINE
+- cd jhipster-task-app/src/main/docker
+- docker-compose -f app.yml up 
   ```
   docker-compose -f src/main/docker/app.yml up -d
   ```
