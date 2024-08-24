@@ -29,7 +29,7 @@ RUN su vscode -c "npm install -g generator-jhipster"
 
 # Install additional tools
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends git curl netcat
+    && apt-get -y install --no-install-recommends git curl netcat-openbsd
 
 # Set the working directory
 WORKDIR /workspace/app
@@ -59,14 +59,30 @@ RUN if [ -x "mvnw" ]; then \
         exit 1; \
     fi
 
-# Compile the application
-RUN ./mvnw clean package -DskipTests
-
 # List contents of the working directory
 RUN echo "Final contents of /workspace/app:" && ls -la
 
 # Expose the port the app runs on
 EXPOSE 8080
 
-# Start the application with verbose logging
-CMD ["sh", "-c", "echo 'Starting application...' && java -jar target/*.jar --spring.profiles.active=prod,api-docs"]
+# Start the application with verbose logging and diagnostics
+CMD ["sh", "-c", "\
+    echo 'Starting application...' && \
+    echo 'Java version:' && java -version && \
+    echo 'Maven version:' && ./mvnw -v && \
+    echo 'Contents of target directory:' && ls -la target && \
+    ./mvnw spring-boot:run -Dspring-boot.run.jvmArguments='-verbose:class' || \
+    (echo 'Failed to start with mvnw, falling back to java -jar' && \
+     java -verbose:class -jar target/*.jar) & \
+    PID=$! && \
+    (for i in {1..30}; do \
+        sleep 10 && \
+        if nc -z localhost 8080; then \
+            echo 'Application started successfully' && \
+            wait $PID && \
+            exit 0; \
+        fi; \
+    done && \
+    echo 'Application failed to start' && \
+    kill $PID && \
+    exit 1)"]
