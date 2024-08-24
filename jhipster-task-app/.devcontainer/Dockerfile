@@ -34,23 +34,36 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 # Set the working directory
 WORKDIR /workspace/app
 
-# Debug: List contents of the current directory
-RUN ls -la
-
 # Copy the application
 COPY . .
 
 # Debug: List contents after copying
-RUN ls -la
+RUN echo "Contents of /workspace/app:" && ls -la
 
-# Set the correct permissions for the mvnw file and verify its existence
-RUN if [ -f "mvnw" ]; then chmod +x mvnw; else echo "mvnw file not found in $(pwd)"; find / -name mvnw 2>/dev/null || true; exit 1; fi
+# Generate mvnw if it doesn't exist
+RUN if [ ! -f "mvnw" ]; then \
+        echo "mvnw not found, generating it..."; \
+        mvn -N io.takari:maven:wrapper -Dmaven=3.8.4; \
+    else \
+        echo "mvnw found"; \
+    fi
+
+# Set the correct permissions for the mvnw file
+RUN chmod +x mvnw
+
+# Verify mvnw exists and is executable
+RUN if [ -x "mvnw" ]; then \
+        echo "mvnw is executable"; \
+    else \
+        echo "mvnw is not executable or doesn't exist"; \
+        exit 1; \
+    fi
 
 # List contents of the working directory
-RUN ls -la
+RUN echo "Final contents of /workspace/app:" && ls -la
 
 # Expose the port the app runs on
 EXPOSE 8080
 
 # Start the application
-CMD ["sh", "-c", "if [ -f \"mvnw\" ]; then ./mvnw spring-boot:run; else echo 'mvnw not found' && ls -la; fi"]
+CMD ["./mvnw", "spring-boot:run"]

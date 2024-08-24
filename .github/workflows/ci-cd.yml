@@ -11,6 +11,25 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Debug - List contents of repository
+      run: |
+        echo "Contents of the repository:"
+        ls -R
+        echo "Current working directory:"
+        pwd
+
+    - name: Debug - Check for mvnw file
+      run: |
+        echo "Checking for mvnw file in jhipster-task-app directory:"
+        if [ -f "./jhipster-task-app/mvnw" ]; then
+          echo "mvnw file found"
+          ls -l ./jhipster-task-app/mvnw
+        else
+          echo "mvnw file not found"
+          echo "Contents of jhipster-task-app directory:"
+          ls -la ./jhipster-task-app
+        fi
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
@@ -19,11 +38,6 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-    - name: Debug - List contents of repository
-      run: |
-        ls -R
-        pwd
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
@@ -40,4 +54,13 @@ jobs:
 
     - name: Test Docker image
       run: |
+        echo "Testing Docker image:"
         docker run --rm watashiwa19/latestdvtaskimagethelatest:latest001 ls -la /workspace/app
+        echo "Checking for mvnw in Docker image:"
+        docker run --rm watashiwa19/latestdvtaskimagethelatest:latest001 ls -l /workspace/app/mvnw
+
+    - name: Debug - Docker build logs
+      if: failure()
+      run: |
+        echo "Docker build logs:"
+        docker buildx build --progress=plain --load -t watashiwa19/latestdvtaskimagethelatest:latest001 -f ./jhipster-task-app/.devcontainer/Dockerfile ./jhipster-task-app
