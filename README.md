@@ -47,7 +47,7 @@
 - cd jhipster-task-app/src/main/docker
 - docker-compose -f app.yml up 
   ```
-  docker-compose -f src/main/docker/app.yml up -d
+  or docker-compose -f src/main/docker/app.yml up -d
   ```
 
 ### 🧪 Testing Rituals 🔬
