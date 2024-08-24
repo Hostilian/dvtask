@@ -34,17 +34,23 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 # Set the working directory
 WORKDIR /workspace/app
 
+# Debug: List contents of the build context
+RUN ls -la /
+
 # Copy the application
-COPY . .
+COPY . /workspace/app/
+
+# Debug: List contents after copying
+RUN ls -la /workspace/app
 
 # Set the correct permissions for the mvnw file and verify its existence
-RUN if [ -f "mvnw" ]; then chmod +x mvnw; else echo "mvnw file not found"; exit 1; fi
+RUN if [ -f "/workspace/app/mvnw" ]; then chmod +x /workspace/app/mvnw; else echo "mvnw file not found in $(pwd)"; find /workspace/app -name mvnw 2>/dev/null || true; exit 1; fi
 
 # List contents of the working directory
-RUN ls -la
+RUN ls -la /workspace/app
 
 # Expose the port the app runs on
 EXPOSE 8080
 
 # Start the application
-CMD ["sh", "-c", "cd /workspace/app && ./mvnw spring-boot:run"]
+CMD ["sh", "-c", "cd /workspace/app && if [ -f \"mvnw\" ]; then ./mvnw spring-boot:run; else echo 'mvnw not found' && ls -la; fi"]
