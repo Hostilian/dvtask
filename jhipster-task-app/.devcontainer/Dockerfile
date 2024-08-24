@@ -29,7 +29,7 @@ RUN su vscode -c "npm install -g generator-jhipster"
 
 # Install additional tools
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends git
+    && apt-get -y install --no-install-recommends git curl
 
 # Set the working directory
 WORKDIR /workspace/app
@@ -37,8 +37,20 @@ WORKDIR /workspace/app
 # Copy the application
 COPY . .
 
-# Set the correct permissions for the mvnw file and verify its existence
-RUN if [ -f "mvnw" ]; then chmod +x mvnw; else echo "mvnw file not found"; exit 1; fi
+# Download mvnw if it doesn't exist
+RUN if [ ! -f "mvnw" ]; then \
+    curl -o mvnw https://raw.githubusercontent.com/takari/maven-wrapper/master/mvnw && \
+    chmod +x mvnw; \
+    else \
+    chmod +x mvnw; \
+    fi
+
+# Download .mvn directory if it doesn't exist
+RUN if [ ! -d ".mvn" ]; then \
+    mkdir -p .mvn/wrapper && \
+    curl -o .mvn/wrapper/maven-wrapper.jar https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar && \
+    curl -o .mvn/wrapper/maven-wrapper.properties https://raw.githubusercontent.com/takari/maven-wrapper/master/maven-wrapper.properties; \
+    fi
 
 # List contents of the working directory
 RUN ls -la
