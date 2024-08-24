@@ -25,13 +25,13 @@ jobs:
         context: ./jhipster-task-app
         file: ./jhipster-task-app/.devcontainer/Dockerfile
         push: true
-        tags: watashiwa19/latestdvtaskimagethelatest:latest1
+        tags: watashiwa19/latestdvtaskimagethelatest:latest001
 
     - name: Verify Docker image
       run: |
-        docker pull watashiwa19/latestdvtaskimagethelatest:latest1
-        docker inspect watashiwa19/latestdvtaskimagethelatest:latest1
+        docker pull watashiwa19/latestdvtaskimagethelatest:latest001
+        docker inspect watashiwa19/latestdvtaskimagethelatest:latest001
 
     - name: Test Docker image
       run: |
-        docker run --rm watashiwa19/latestdvtaskimagethelatest:latest1 ls -la /workspace/app
+        docker run --rm watashiwa19/latestdvtaskimagethelatest:latest001 ls -la /workspace/app
