@@ -43,3 +43,8 @@ jobs:
     - name: Push Docker image
       run: |
         docker push watashiwa19/latestdvtaskimagethelatest:latest
+
+    - name: Verify Docker image
+      run: |
+        docker pull watashiwa19/latestdvtaskimagethelatest:latest
+        docker inspect watashiwa19/latestdvtaskimagethelatest:latest
