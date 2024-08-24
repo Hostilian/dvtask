@@ -1,13 +1,15 @@
 # See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.209.6/containers/java/.devcontainer/base.Dockerfile
-# [Choice] Java version (use -bullseye variants on local arm64/Apple Silicon): 17, 17-bullseye, 17-buster
 ARG VARIANT="17"
 FROM mcr.microsoft.com/vscode/devcontainers/java:0-${VARIANT}
 
+# [Option] Install Maven
+ARG INSTALL_MAVEN="true"
+ARG MAVEN_VERSION="3.8.4"
+
+# [Option] Install Gradle
 ARG INSTALL_GRADLE="false"
 ARG GRADLE_VERSION=""
 
-RUN if [ "${INSTALL_MAVEN}" = "true" ]; then su vscode -c "umask 0002 && . /usr/local/sdkman/bin/sdkman-init.sh && sdk install maven \"${MAVEN_VERSION}\""; fi \
-    && if [ "${INSTALL_GRADLE}" = "true" ]; then su vscode -c "umask 0002 && . /usr/local/sdkman/bin/sdkman-init.sh && sdk install gradle \"${GRADLE_VERSION}\""; fi
 # Install Maven and Gradle
 RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
     apt-get update && apt-get install -y maven \
@@ -29,20 +31,20 @@ RUN su vscode -c "npm install -g generator-jhipster"
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends git
 
-# [Optional] Uncomment this line to install global node packages.
-# RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
-
 # Set the working directory
 WORKDIR /workspace/app
 
 # Copy the application
 COPY . .
 
-# Set the correct permissions for the mvnw file
-RUN if [ -f "mvnw" ]; then chmod +x mvnw; fi
+# Set the correct permissions for the mvnw file and verify its existence
+RUN if [ -f "mvnw" ]; then chmod +x mvnw; else echo "mvnw file not found"; exit 1; fi
+
+# List contents of the working directory
+RUN ls -la
 
 # Expose the port the app runs on
 EXPOSE 8080
 
 # Start the application
-CMD ["./mvnw", "spring-boot:run"]
+CMD ["sh", "-c", "cd /workspace/app && ./mvnw spring-boot:run"]
