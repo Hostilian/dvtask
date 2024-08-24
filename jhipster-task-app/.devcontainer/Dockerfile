@@ -29,7 +29,7 @@ RUN su vscode -c "npm install -g generator-jhipster"
 
 # Install additional tools
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends git curl
+    && apt-get -y install --no-install-recommends git curl netcat
 
 # Set the working directory
 WORKDIR /workspace/app
@@ -59,15 +59,14 @@ RUN if [ -x "mvnw" ]; then \
         exit 1; \
     fi
 
+# Compile the application
+RUN ./mvnw clean package -DskipTests
+
 # List contents of the working directory
 RUN echo "Final contents of /workspace/app:" && ls -la
 
 # Expose the port the app runs on
 EXPOSE 8080
 
-# Healthcheck to ensure application is running
-HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:8080/management/health || exit 1
-
 # Start the application with verbose logging
-CMD ["sh", "-c", "echo 'Starting application...' && ./mvnw spring-boot:run -Dspring-boot.run.jvmArguments='-verbose:class' || (echo 'Failed to start with mvnw, falling back to java -jar' && java -jar target/*.jar)"]
+CMD ["sh", "-c", "echo 'Starting application...' && java -jar target/*.jar --spring.profiles.active=prod,api-docs"]

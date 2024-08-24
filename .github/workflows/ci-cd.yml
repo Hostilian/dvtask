@@ -39,6 +39,16 @@ jobs:
         sleep 60  # Wait for the application to start
         docker logs test-container
 
+    - name: Debug - Check container status
+      run: |
+        docker ps -a
+        docker top test-container
+        docker exec test-container ps aux
+
+    - name: Debug - Check if application is listening on port 8080
+      run: |
+        docker exec test-container netstat -tuln
+
     - name: Check application health
       run: |
         docker exec test-container curl -f http://localhost:8080/management/health || (echo "Health check failed" && exit 1)
