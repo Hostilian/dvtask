@@ -16,6 +16,18 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    - name: Cache Maven packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+
+    - name: Remove duplicate test classes
+      run: |
+        cd jhipster-task-app
+        rm -rf src/test/java/ipsum
+
     - name: Build with Maven and create Docker image
       run: |
         cd jhipster-task-app
