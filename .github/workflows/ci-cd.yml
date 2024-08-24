@@ -1,8 +1,11 @@
-name: Docker Build and Push
+name: Build and Push Docker Image
 
 on:
   push:
     branches: [ "main" ]
+
+env:
+  IMAGE_NAME: dvtask
 
 jobs:
   build-and-push:
@@ -23,29 +26,18 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
 
-    - name: Remove duplicate test classes
+    - name: Build application
       run: |
         cd jhipster-task-app
-        rm -rf src/test/java/ipsum
+        chmod +x mvnw
+        ./mvnw clean package -Pprod -DskipTests
 
-    - name: Make mvnw executable
-      run: chmod +x jhipster-task-app/mvnw
-
-    - name: Build with Maven and create Docker image
+    - name: Build and push Docker image
+      env:
+        DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       run: |
         cd jhipster-task-app
-        ./mvnw clean verify -Pprod jib:dockerBuild -DskipTests -Djib.to.image=dvtask:latest
-
-    - name: List Docker images
-      run: docker images
-
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-    - name: Push Docker image
-      run: |
-        docker tag dvtask:latest ${{ secrets.DOCKER_HUB_USERNAME }}/dvtask:latest
-        docker push ${{ secrets.DOCKER_HUB_USERNAME }}/dvtask:latest
+        docker build -f src/main/docker/Dockerfile.jvm -t $DOCKER_HUB_USERNAME/$IMAGE_NAME:latest .
+        echo $DOCKER_HUB_ACCESS_TOKEN | docker login -u $DOCKER_HUB_USERNAME --password-stdin
+        docker push $DOCKER_HUB_USERNAME/$IMAGE_NAME:latest
