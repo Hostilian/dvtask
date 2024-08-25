@@ -22,18 +22,20 @@ RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
 
 # [Choice] Node.js version: none, lts/*, 16, 14, 12, 10
 ARG NODE_VERSION="16"
+ENV NVM_DIR=/usr/local/share/nvm
 RUN if [ "${NODE_VERSION}" != "none" ]; then \
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash && \
-    . /usr/local/share/nvm/nvm.sh && \
+    . "$NVM_DIR/nvm.sh" && \
     nvm install ${NODE_VERSION} && \
     nvm use ${NODE_VERSION} && \
     nvm alias default ${NODE_VERSION}; \
     fi
 
 # Ensure Node.js and npm are accessible in the shell
-ENV NVM_DIR=/usr/local/share/nvm
-ENV NODE_VERSION=${NODE_VERSION}
 ENV PATH="$NVM_DIR/versions/node/v${NODE_VERSION}/bin:$PATH"
+
+# Make sure the frontend Maven plugin can find Node.js
+ENV NODE_PATH="$NVM_DIR/versions/node/v${NODE_VERSION}/bin"
 
 # Install JHipster
 RUN npm install -g generator-jhipster
