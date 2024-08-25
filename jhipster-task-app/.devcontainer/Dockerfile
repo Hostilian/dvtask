@@ -46,6 +46,9 @@ WORKDIR /workspace/app
 # Copy the application
 COPY . .
 
+# Remove duplicate test files
+RUN find src/test/java/ipsum -type f -delete
+
 # Ensure mvnw is present and executable
 RUN chmod +x mvnw
 
@@ -80,5 +83,8 @@ EXPOSE 8080
 ENV NODE_PATH /usr/lib/node_modules
 ENV NPM_CONFIG_PREFIX /usr/local
 
+# Build the application
+RUN ./mvnw clean package -DskipTests -Pdev
+
 # Start the application
-CMD ["./mvnw", "spring-boot:run", "-Pdev"]
+CMD ["java", "-jar", "target/*.jar"]

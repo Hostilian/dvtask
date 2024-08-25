@@ -86,8 +86,6 @@ jobs:
         docker exec test-container node --version
         echo "npm version:"
         docker exec test-container npm --version
-        echo "Maven version:"
-        docker exec test-container mvn --version
         echo "Java version:"
         docker exec test-container java -version
         echo "Environment variables:"
