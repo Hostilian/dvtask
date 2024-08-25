@@ -22,9 +22,13 @@ RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
 
 # Install Node.js
 ARG NODE_VERSION="18.18.0"
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install -g npm@latest
+ENV NVM_DIR=/usr/local/nvm
+ENV PATH="${NVM_DIR}/versions/node/v${NODE_VERSION}/bin:${PATH}"
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash \
+    && . "$NVM_DIR/nvm.sh" \
+    && nvm install ${NODE_VERSION} \
+    && nvm use ${NODE_VERSION} \
+    && nvm alias default ${NODE_VERSION}
 
 # Install JHipster
 RUN npm install -g generator-jhipster@latest
