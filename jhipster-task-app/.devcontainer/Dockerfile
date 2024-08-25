@@ -21,7 +21,7 @@ RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
     fi
 
 # [Choice] Node.js version: none, lts/*, 16, 14, 12, 10
-ARG NODE_VERSION="16"
+ARG NODE_VERSION="20.15.0"
 RUN if [ "${NODE_VERSION}" != "none" ]; then su vscode -c "umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"; fi
 
 # Install JHipster
