@@ -76,5 +76,9 @@ RUN if [ -f package.json ]; then \
 # Expose the port the app runs on
 EXPOSE 8080
 
+# Set environment variables for Node.js
+ENV NODE_PATH /usr/lib/node_modules
+ENV NPM_CONFIG_PREFIX /usr/local
+
 # Start the application
-CMD ["./mvnw", "spring-boot:run"]
+CMD ["./mvnw", "spring-boot:run", "-Pdev"]
