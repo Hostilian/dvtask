@@ -1,14 +1,16 @@
-# Base Image with Java 17
+# See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.209.6/containers/java/.devcontainer/base.Dockerfile
 ARG VARIANT="17"
 FROM mcr.microsoft.com/vscode/devcontainers/java:0-${VARIANT}
 
-# Optional: Install Maven and Gradle
+# [Option] Install Maven
 ARG INSTALL_MAVEN="true"
 ARG MAVEN_VERSION="3.8.4"
+
+# [Option] Install Gradle
 ARG INSTALL_GRADLE="false"
 ARG GRADLE_VERSION=""
 
-# Install Maven and Gradle based on arguments
+# Install Maven and Gradle
 RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
     apt-get update && apt-get install -y maven \
     && mvn --version; \
@@ -18,20 +20,12 @@ RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
     && gradle --version; \
     fi
 
-# Install Node.js via nvm (Node Version Manager)
-ARG NODE_VERSION="18.18.0"
-ENV NVM_DIR=/usr/local/nvm
-RUN mkdir -p $NVM_DIR \
-    && chmod -R 777 $NVM_DIR \
-    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash \
-    && . $NVM_DIR/nvm.sh \
-    && nvm install ${NODE_VERSION} \
-    && nvm use ${NODE_VERSION} \
-    && nvm alias default ${NODE_VERSION}
-ENV PATH="${NVM_DIR}/versions/node/v${NODE_VERSION}/bin:${PATH}"
+# [Choice] Node.js version: none, lts/*, 16, 14, 12, 10
+ARG NODE_VERSION="16"
+RUN if [ "${NODE_VERSION}" != "none" ]; then su vscode -c "umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"; fi
 
-# Install JHipster globally
-RUN npm install -g generator-jhipster@latest
+# Install JHipster
+RUN su vscode -c "npm install -g generator-jhipster"
 
 # Install additional tools
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
@@ -51,19 +45,20 @@ RUN if [ ! -f "mvnw" ]; then \
     chmod +x mvnw; \
     fi
 
-# Ensure .mvn directory and contents are present
-RUN mkdir -p .mvn/wrapper \
-    && if [ ! -f ".mvn/wrapper/maven-wrapper.jar" ]; then \
+# Ensure .mvn directory exists
+RUN mkdir -p .mvn/wrapper
+
+# Download maven-wrapper.jar if it doesn't exist
+RUN if [ ! -f ".mvn/wrapper/maven-wrapper.jar" ]; then \
     curl -o .mvn/wrapper/maven-wrapper.jar https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar; \
-    fi \
-    && if [ ! -f ".mvn/wrapper/maven-wrapper.properties" ]; then \
+    fi
+
+# Download maven-wrapper.properties if it doesn't exist
+RUN if [ ! -f ".mvn/wrapper/maven-wrapper.properties" ]; then \
     curl -o .mvn/wrapper/maven-wrapper.properties https://raw.githubusercontent.com/takari/maven-wrapper/master/maven-wrapper.properties; \
     fi
 
-# Install npm dependencies
-RUN npm install
-
-# Expose the application port
+# Expose the port the app runs on
 EXPOSE 8080
 
 # Start the application
