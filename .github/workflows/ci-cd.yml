@@ -1,7 +1,9 @@
 name: Docker Build and Push
+
 on:
   push:
     branches: [ "main" ]
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -15,10 +17,10 @@ jobs:
         java-version: '17'
         distribution: 'adopt'
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+
+
+
+
 
     - name: Clean up test directory
       run: |
@@ -30,6 +32,7 @@ jobs:
         if [ -d "src/test/java/com/dv/ipsum" ]; then
           find src/test/java/com/dv/ipsum -type f -name "*.java" -exec sed -i 's/package ipsum/package com.dv.ipsum/g' {} +
         fi
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
@@ -45,19 +48,21 @@ jobs:
         context: ./jhipster-task-app
         file: ./jhipster-task-app/.devcontainer/Dockerfile
         push: true
-        tags: watashiwa19/5dvtaskimagethelatest:latest
+        tags: watashiwa19/5dvtaskimagethelatest
         build-args: |
           VARIANT=17
           INSTALL_MAVEN=true
           INSTALL_GRADLE=true
-          NODE_VERSION=18
+          NODE_VERSION=16
+
     - name: Verify Docker image
       run: |
-        docker pull watashiwa19/5dvtaskimagethelatest:latest
-        docker inspect watashiwa19/5dvtaskimagethelatest:latest
+        docker pull watashiwa19/5dvtaskimagethelatest
+        docker inspect watashiwa19/5dvtaskimagethelatest
+
     - name: Run Docker image and capture logs
       run: |
-        docker run -d --name test-container watashiwa19/5dvtaskimagethelatest:latest
+        docker run -d --name test-container watashiwa19/5dvtaskimagethelatest
         docker logs -f test-container &
         DOCKER_PID=$!
         echo "Waiting for application to start (this may take up to 5 minutes)..."
@@ -73,6 +78,7 @@ jobs:
         kill $DOCKER_PID
         docker logs test-container
         exit 1
+
     - name: Check application health
       run: |
         if docker exec test-container curl -sf http://localhost:8080/management/health > /dev/null 2>&1; then
@@ -82,6 +88,7 @@ jobs:
           docker logs test-container
           exit 1
         fi
+
     - name: Diagnostic information
       if: failure()
       run: |
@@ -91,6 +98,7 @@ jobs:
         docker top test-container
         echo "Container network:"
         docker network inspect bridge
+
     - name: Clean up
       if: always()
       run: docker rm -f test-container
@@ -99,4 +107,4 @@ jobs:
       if: failure()
       run: |
         echo "Docker build logs:"
-        docker buildx build --progress=plain --load -t watashiwa19/5dvtaskimagethelatest:latest -f ./jhipster-task-app/.devcontainer/Dockerfile ./jhipster-task-app
+        docker buildx build --progress=plain --load -t watashiwa19/5dvtaskimagethelatest -f ./jhipster-task-app/.devcontainer/Dockerfile ./jhipster-task-app
