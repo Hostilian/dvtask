@@ -47,24 +47,19 @@ WORKDIR /workspace/app
 COPY . .
 
 # Ensure mvnw is present and executable
-RUN if [ ! -f "mvnw" ]; then \
-    curl -o mvnw https://raw.githubusercontent.com/takari/maven-wrapper/master/mvnw && \
-    chmod +x mvnw; \
-    else \
-    chmod +x mvnw; \
-    fi
+RUN chmod +x mvnw
 
 # Ensure .mvn directory exists
 RUN mkdir -p .mvn/wrapper
 
 # Download maven-wrapper.jar if it doesn't exist
 RUN if [ ! -f ".mvn/wrapper/maven-wrapper.jar" ]; then \
-    curl -o .mvn/wrapper/maven-wrapper.jar https://repo.maven.apache.org/maven2/io/takari/maven-wrapper/0.5.6/maven-wrapper-0.5.6.jar; \
+    curl -o .mvn/wrapper/maven-wrapper.jar https://repo.maven.apache.org/maven2/org/apache/maven/maven-wrapper/3.1.0/maven-wrapper-3.1.0.jar; \
     fi
 
 # Download maven-wrapper.properties if it doesn't exist
 RUN if [ ! -f ".mvn/wrapper/maven-wrapper.properties" ]; then \
-    curl -o .mvn/wrapper/maven-wrapper.properties https://raw.githubusercontent.com/takari/maven-wrapper/master/maven-wrapper.properties; \
+    echo "distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.4/apache-maven-3.8.4-bin.zip" > .mvn/wrapper/maven-wrapper.properties; \
     fi
 
 # Clear npm cache and install dependencies
