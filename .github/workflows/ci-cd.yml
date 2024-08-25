@@ -103,6 +103,10 @@ jobs:
         docker exec test-container java -version
         echo "Environment variables:"
         docker exec test-container env
+        echo "Contents of /usr/lib/nodejs:"
+        docker exec test-container ls -la /usr/lib/nodejs
+        echo "Contents of /usr/bin:"
+        docker exec test-container ls -la /usr/bin | grep node
 
     - name: Clean up
       if: always()
