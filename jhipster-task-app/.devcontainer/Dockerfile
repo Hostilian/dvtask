@@ -21,7 +21,7 @@ RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
     fi
 
 # Install Node.js via nvm (Node Version Manager)
-ARG NODE_VERSION="18"  # Update Node.js to version 18
+ARG NODE_VERSION="20"
 ENV NVM_DIR=/usr/local/share/nvm
 RUN if [ "${NODE_VERSION}" != "none" ]; then \
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash && \
