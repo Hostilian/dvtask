@@ -34,8 +34,9 @@ RUN if [ "${NODE_VERSION}" != "none" ]; then \
 # Ensure Node.js and npm are accessible in the shell
 ENV PATH="$NVM_DIR/versions/node/v${NODE_VERSION}/bin:$PATH"
 
-# Make sure the frontend Maven plugin can find Node.js
-ENV NODE_PATH="$NVM_DIR/versions/node/v${NODE_VERSION}/bin"
+# Explicitly set Node.js binary path for Maven
+ENV NODE_BINARY="$NVM_DIR/versions/node/v${NODE_VERSION}/bin/node"
+ENV NODE_PATH="$NVM_DIR/versions/node/v${NODE_VERSION}/lib/node_modules"
 
 # Install JHipster
 RUN npm install -g generator-jhipster
