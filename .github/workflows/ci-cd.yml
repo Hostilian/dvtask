@@ -103,10 +103,10 @@ jobs:
         docker exec test-container java -version
         echo "Environment variables:"
         docker exec test-container env
-        echo "Contents of /usr/lib/node_modules:"
-        docker exec test-container ls -la /usr/lib/node_modules
-        echo "Contents of /usr/bin:"
-        docker exec test-container ls -la /usr/bin | grep node
+        echo "Contents of /usr/local/nvm:"
+        docker exec test-container ls -la /usr/local/nvm
+        echo "Contents of /usr/local/nvm/versions/node:"
+        docker exec test-container ls -la /usr/local/nvm/versions/node
         echo "Contents of pom.xml:"
         docker exec test-container cat pom.xml
         echo "Contents of package.json:"

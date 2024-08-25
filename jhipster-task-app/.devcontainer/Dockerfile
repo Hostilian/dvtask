@@ -20,17 +20,22 @@ RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
     && gradle --version; \
     fi
 
-# Install Node.js and npm
-ARG NODE_VERSION="20.15.0"
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install -g npm@latest
+# Install Node.js and npm using nvm
+ENV NVM_DIR /usr/local/nvm
+ENV NODE_VERSION 20.15.0
+
+RUN mkdir -p $NVM_DIR \
+    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash \
+    && . $NVM_DIR/nvm.sh \
+    && nvm install $NODE_VERSION \
+    && nvm alias default $NODE_VERSION \
+    && nvm use default
+
+ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
+ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 # Verify Node.js and npm installation
 RUN node --version && npm --version
-
-# Set NODE_HOME environment variable for Maven plugin
-ENV NODE_HOME=/usr/lib/node_modules/npm/node_modules/node-gyp
 
 # Install JHipster
 RUN npm install -g generator-jhipster
