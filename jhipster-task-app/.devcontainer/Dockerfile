@@ -60,6 +60,9 @@ RUN if [ ! -f ".mvn/wrapper/maven-wrapper.properties" ]; then \
     curl -o .mvn/wrapper/maven-wrapper.properties https://raw.githubusercontent.com/takari/maven-wrapper/master/maven-wrapper.properties; \
     fi
 
+# Install npm dependencies
+RUN npm install
+
 # Expose the port the app runs on
 EXPOSE 8080
 
