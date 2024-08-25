@@ -20,12 +20,9 @@ RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
     && gradle --version; \
     fi
 
-# [Choice] Node.js version: none, lts/*, 16, 14, 12, 10
+# Install Node.js via nvm (Node Version Manager)
 ARG NODE_VERSION="16"
 ENV NVM_DIR=/usr/local/share/nvm
-ENV NODE_VERSION=${NODE_VERSION}
-
-# Install Node.js using NVM and set up environment variables
 RUN if [ "${NODE_VERSION}" != "none" ]; then \
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash && \
     . "$NVM_DIR/nvm.sh" && \
@@ -34,9 +31,15 @@ RUN if [ "${NODE_VERSION}" != "none" ]; then \
     nvm alias default ${NODE_VERSION}; \
     fi
 
-# Ensure Node.js and npm are accessible in the shell and by Maven
+# Ensure Node.js and npm are accessible in the shell
 ENV PATH="$NVM_DIR/versions/node/v${NODE_VERSION}/bin:$PATH"
-ENV NODE_PATH="$NVM_DIR/versions/node/v${NODE_VERSION}/lib/node_modules"
+
+# Set NODE_HOME environment variable for Maven plugin
+ENV NODE_HOME="$NVM_DIR/versions/node/v${NODE_VERSION}"
+ENV NODE_BINARY="$NODE_HOME/bin/node"
+
+# Make sure the frontend Maven plugin can find Node.js
+ENV NODE_PATH="$NVM_DIR/versions/node/v${NODE_VERSION}/bin"
 
 # Install JHipster
 RUN npm install -g generator-jhipster
