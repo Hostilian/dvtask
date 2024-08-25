@@ -16,13 +16,7 @@ jobs:
     - name: Clean up test directory
       run: |
         cd jhipster-task-app
-        if [ -d "src/test/java/ipsum" ]; then
-          find src/test/java/ipsum -type f -exec rm -f {} +
-          rm -rf src/test/java/ipsum
-        fi
-        if [ -d "src/test/java/com/dv/ipsum" ]; then
-          find src/test/java/com/dv/ipsum -type f -name "*.java" -exec sed -i 's/package ipsum/package com.dv.ipsum/g' {} +
-        fi
+        find src/test/java -name "*.java" -type f -delete
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
     - name: Login to Docker Hub
