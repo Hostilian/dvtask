@@ -44,6 +44,13 @@ ENV NODE_PATH="$NVM_DIR/versions/node/v${NODE_VERSION}/bin"
 # Install JHipster
 RUN npm install -g generator-jhipster
 
+# Clear npm cache and reinstall dependencies
+RUN npm cache clean --force
+RUN npm install
+
+# Run npm audit fix
+RUN npm audit fix
+
 # Install additional tools
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends git curl
