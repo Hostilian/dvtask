@@ -21,15 +21,13 @@ RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
     fi
 
 # Install Node.js via nvm (Node Version Manager)
-ARG NODE_VERSION="20"
+ARG NODE_VERSION="20.15.0"
 ENV NVM_DIR=/usr/local/share/nvm
-RUN if [ "${NODE_VERSION}" != "none" ]; then \
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash && \
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash && \
     . "$NVM_DIR/nvm.sh" && \
     nvm install ${NODE_VERSION} && \
     nvm use ${NODE_VERSION} && \
-    nvm alias default ${NODE_VERSION}; \
-    fi
+    nvm alias default ${NODE_VERSION}
 
 # Ensure Node.js and npm are accessible in the shell
 ENV PATH="$NVM_DIR/versions/node/v${NODE_VERSION}/bin:$PATH"
@@ -85,6 +83,9 @@ RUN npm cache clean --force && \
 RUN if [ -f package.json ]; then \
     npm audit fix || true; \
     fi
+
+# Set correct permissions for Node.js
+RUN chmod -R 755 $NVM_DIR
 
 # Expose the port the app runs on
 EXPOSE 8080

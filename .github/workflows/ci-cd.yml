@@ -17,11 +17,6 @@ jobs:
         java-version: '17'
         distribution: 'adopt'
 
-
-
-
-
-
     - name: Clean up test directory
       run: |
         cd jhipster-task-app
@@ -53,7 +48,7 @@ jobs:
           VARIANT=17
           INSTALL_MAVEN=true
           INSTALL_GRADLE=true
-          NODE_VERSION=16
+          NODE_VERSION=20.15.0
 
     - name: Verify Docker image
       run: |
