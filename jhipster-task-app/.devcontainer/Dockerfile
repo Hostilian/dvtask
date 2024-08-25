@@ -20,12 +20,14 @@ RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
     && gradle --version; \
     fi
 
-# [Choice] Node.js version: none, lts/*, 16, 14, 12, 10
-ARG NODE_VERSION="20.15.0"
-RUN if [ "${NODE_VERSION}" != "none" ]; then su vscode -c "umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"; fi
+# Install Node.js
+ARG NODE_VERSION="18.18.0"
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm@latest
 
 # Install JHipster
-RUN su vscode -c "npm install -g generator-jhipster"
+RUN npm install -g generator-jhipster@latest
 
 # Install additional tools
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \

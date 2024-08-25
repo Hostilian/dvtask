@@ -18,18 +18,18 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'
+        node-version: '18.18.0'
 
-    - name: Clean up test directory
+    - name: Install dependencies
       run: |
         cd jhipster-task-app
-        if [ -d "src/test/java/ipsum" ]; then
-          find src/test/java/ipsum -type f -exec rm -f {} +
-          rm -rf src/test/java/ipsum
-        fi
-        if [ -d "src/test/java/com/dv/ipsum" ]; then
-          find src/test/java/com/dv/ipsum -type f -name "*.java" -exec sed -i 's/package ipsum/package com.dv.ipsum/g' {} +
-        fi
+        npm install
+        npm install -g generator-jhipster@latest
+
+    - name: Build with Maven
+      run: |
+        cd jhipster-task-app
+        ./mvnw package -Pprod -DskipTests
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -51,7 +51,7 @@ jobs:
           VARIANT=17
           INSTALL_MAVEN=true
           INSTALL_GRADLE=true
-          NODE_VERSION=18
+          NODE_VERSION=18.18.0
 
     - name: Verify Docker image
       run: |
