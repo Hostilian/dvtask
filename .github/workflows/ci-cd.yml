@@ -18,19 +18,18 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18.18.0'
+        node-version: '18'
 
-    - name: Install dependencies
+    - name: Clean up test directory
       run: |
         cd jhipster-task-app
-        npm install
-        npm install -g generator-jhipster@latest
-
-    - name: Build with Maven
-      run: |
-        cd jhipster-task-app
-        ./mvnw package -Pprod -DskipTests
-
+        if [ -d "src/test/java/ipsum" ]; then
+          find src/test/java/ipsum -type f -exec rm -f {} +
+          rm -rf src/test/java/ipsum
+        fi
+        if [ -d "src/test/java/com/dv/ipsum" ]; then
+          find src/test/java/com/dv/ipsum -type f -name "*.java" -exec sed -i 's/package ipsum/package com.dv.ipsum/g' {} +
+        fi
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
@@ -51,13 +50,11 @@ jobs:
           VARIANT=17
           INSTALL_MAVEN=true
           INSTALL_GRADLE=true
-          NODE_VERSION=18.18.0
-
+          NODE_VERSION=18
     - name: Verify Docker image
       run: |
         docker pull watashiwa19/5dvtaskimagethelatest:latest
         docker inspect watashiwa19/5dvtaskimagethelatest:latest
-
     - name: Run Docker image and capture logs
       run: |
         docker run -d --name test-container watashiwa19/5dvtaskimagethelatest:latest
@@ -76,7 +73,6 @@ jobs:
         kill $DOCKER_PID
         docker logs test-container
         exit 1
-
     - name: Check application health
       run: |
         if docker exec test-container curl -sf http://localhost:8080/management/health > /dev/null 2>&1; then
@@ -86,7 +82,6 @@ jobs:
           docker logs test-container
           exit 1
         fi
-
     - name: Diagnostic information
       if: failure()
       run: |
@@ -96,7 +91,6 @@ jobs:
         docker top test-container
         echo "Container network:"
         docker network inspect bridge
-
     - name: Clean up
       if: always()
       run: docker rm -f test-container
