@@ -20,24 +20,17 @@ RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
     && gradle --version; \
     fi
 
-# Install Node.js via nvm (Node Version Manager)
+# Install Node.js and npm
 ARG NODE_VERSION="20.15.0"
-ENV NVM_DIR=/usr/local/share/nvm
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash && \
-    . "$NVM_DIR/nvm.sh" && \
-    nvm install ${NODE_VERSION} && \
-    nvm use ${NODE_VERSION} && \
-    nvm alias default ${NODE_VERSION}
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm@latest
 
-# Ensure Node.js and npm are accessible in the shell
-ENV PATH="$NVM_DIR/versions/node/v${NODE_VERSION}/bin:$PATH"
+# Verify Node.js and npm installation
+RUN node --version && npm --version
 
 # Set NODE_HOME environment variable for Maven plugin
-ENV NODE_HOME="$NVM_DIR/versions/node/v${NODE_VERSION}"
-ENV NODE_BINARY="$NODE_HOME/bin/node"
-
-# Make sure the frontend Maven plugin can find Node.js
-ENV NODE_PATH="$NVM_DIR/versions/node/v${NODE_VERSION}/bin"
+ENV NODE_HOME=/usr/lib/node_modules/npm/node_modules/node-gyp
 
 # Install JHipster
 RUN npm install -g generator-jhipster
@@ -83,9 +76,6 @@ RUN npm cache clean --force && \
 RUN if [ -f package.json ]; then \
     npm audit fix || true; \
     fi
-
-# Set correct permissions for Node.js
-RUN chmod -R 755 $NVM_DIR
 
 # Expose the port the app runs on
 EXPOSE 8080
