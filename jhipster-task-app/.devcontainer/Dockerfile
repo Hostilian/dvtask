@@ -30,8 +30,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 RUN node --version && npm --version
 
 # Set NODE_HOME environment variable for Maven plugin
-ENV NODE_HOME=/usr/lib/nodejs
-ENV PATH=$NODE_HOME/bin:$PATH
+ENV NODE_HOME=/usr/lib/node_modules/npm/node_modules/node-gyp
 
 # Install JHipster
 RUN npm install -g generator-jhipster
