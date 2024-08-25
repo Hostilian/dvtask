@@ -1,4 +1,3 @@
-# This configuration is intended for development purpose, it's **your** responsibility to harden it for production
 name: jhipstertaskapp
 services:
   app:
