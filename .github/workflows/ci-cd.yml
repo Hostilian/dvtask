@@ -86,10 +86,8 @@ jobs:
         docker exec test-container env
         echo "Contents of /workspace/app:"
         docker exec test-container ls -la /workspace/app
-        echo "Contents of pom.xml:"
-        docker exec test-container cat /workspace/app/pom.xml
-        echo "Contents of package.json:"
-        docker exec test-container cat /workspace/app/package.json
+        echo "Contents of target directory:"
+        docker exec test-container ls -la /workspace/app/target
     - name: Clean up
       if: always()
       run: docker rm -f test-container
