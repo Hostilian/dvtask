@@ -1,7 +1,9 @@
 name: Docker Build and Push
+
 on:
   push:
     branches: [ "main" ]
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -44,14 +46,9 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./jhipster-task-app
-        file: ./jhipster-task-app/.devcontainer/Dockerfile
+        file: ./jhipster-task-app/Dockerfile
         push: true
         tags: watashiwa19/5dvtaskimagethelatest:latest
-        build-args: |
-          VARIANT=17
-          INSTALL_MAVEN=true
-          INSTALL_GRADLE=true
-          NODE_VERSION=18
 
     - name: Verify Docker image
       run: |
@@ -60,12 +57,12 @@ jobs:
 
     - name: Run Docker image and capture logs
       run: |
-        docker run -d --name test-container watashiwa19/5dvtaskimagethelatest:latest
+        docker run -d --name test-container -p 8080:8080 watashiwa19/5dvtaskimagethelatest:latest
         docker logs -f test-container &
         DOCKER_PID=$!
         echo "Waiting for application to start (this may take up to 5 minutes)..."
         for i in {1..30}; do
-          if docker exec test-container curl -sf http://localhost:8080/management/health > /dev/null 2>&1; then
+          if curl -sf http://localhost:8080/management/health > /dev/null 2>&1; then
             echo "Application started successfully"
             kill $DOCKER_PID
             exit 0
@@ -79,7 +76,7 @@ jobs:
 
     - name: Check application health
       run: |
-        if docker exec test-container curl -sf http://localhost:8080/management/health > /dev/null 2>&1; then
+        if curl -sf http://localhost:8080/management/health > /dev/null 2>&1; then
           echo "Health check passed"
         else
           echo "Health check failed"
@@ -105,4 +102,4 @@ jobs:
       if: failure()
       run: |
         echo "Docker build logs:"
-        docker buildx build --progress=plain --load -t watashiwa19/5dvtaskimagethelatest:latest -f ./jhipster-task-app/.devcontainer/Dockerfile ./jhipster-task-app
+        docker buildx build --progress=plain --load -t watashiwa19/5dvtaskimagethelatest:latest -f ./jhipster-task-app/Dockerfile ./jhipster-task-app
