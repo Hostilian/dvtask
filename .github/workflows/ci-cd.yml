@@ -5,8 +5,8 @@ on:
     branches: [ "main" ]
 
 env:
-  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
 jobs:
   build-and-push:
@@ -30,23 +30,23 @@ jobs:
 
     - name: Check if secrets are set
       run: |
-        if [ -z "$DOCKERHUB_USERNAME" ]; then
-          echo "Error: DOCKERHUB_USERNAME is not set in GitHub secrets"
-          echo "Please add DOCKERHUB_USERNAME to your repository secrets"
+        if [ -z "${{ secrets.DOCKER_HUB_USERNAME }}" ]; then
+          echo "Error: DOCKER_HUB_USERNAME is not set in GitHub secrets"
+          echo "Please add DOCKER_HUB_USERNAME to your repository secrets"
           exit 1
         fi
-        if [ -z "$DOCKERHUB_TOKEN" ]; then
-          echo "Error: DOCKERHUB_TOKEN is not set in GitHub secrets"
-          echo "Please add DOCKERHUB_TOKEN to your repository secrets"
+        if [ -z "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" ]; then
+          echo "Error: DOCKER_HUB_ACCESS_TOKEN is not set in GitHub secrets"
+          echo "Please add DOCKER_HUB_ACCESS_TOKEN to your repository secrets"
           exit 1
         fi
-        echo "Both DOCKERHUB_USERNAME and DOCKERHUB_TOKEN are properly set"
+        echo "Both DOCKER_HUB_USERNAME and DOCKER_HUB_ACCESS_TOKEN are properly set"
 
     - name: Login to Docker Hub
       uses: docker/login-action@v2
       with:
-        username: ${{ env.DOCKERHUB_USERNAME }}
-        password: ${{ env.DOCKERHUB_TOKEN }}
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
     - name: List directory contents
       run: ls -R
@@ -68,7 +68,7 @@ jobs:
         context: ./jhipster-task-app
         file: ./jhipster-task-app/.devcontainer/Dockerfile
         push: true
-        tags: ${{ env.DOCKERHUB_USERNAME }}/5dvtaskimagethelatest:latest
+        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/5dvtaskimagethelatest:latest
         build-args: |
           VARIANT=17
           INSTALL_MAVEN=true
@@ -77,12 +77,12 @@ jobs:
 
     - name: Verify Docker image
       run: |
-        docker pull ${{ env.DOCKERHUB_USERNAME }}/5dvtaskimagethelatest:latest
-        docker inspect ${{ env.DOCKERHUB_USERNAME }}/5dvtaskimagethelatest:latest
+        docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/5dvtaskimagethelatest:latest
+        docker inspect ${{ secrets.DOCKER_HUB_USERNAME }}/5dvtaskimagethelatest:latest
 
     - name: Run Docker image and capture logs
       run: |
-        docker run -d --name test-container -p 8080:8080 ${{ env.DOCKERHUB_USERNAME }}/5dvtaskimagethelatest:latest
+        docker run -d --name test-container -p 8080:8080 ${{ secrets.DOCKER_HUB_USERNAME }}/5dvtaskimagethelatest:latest
         echo "Waiting for application to start (this may take up to 5 minutes)..."
         for i in {1..30}; do
           if docker logs test-container 2>&1 | grep -q "Started" ; then
