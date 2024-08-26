@@ -24,7 +24,7 @@ RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
     fi
 
 # Install Node.js and npm for any front-end dependencies or build tools
-ARG NODE_VERSION="18.x"
+ARG NODE_VERSION="20.x"
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION} | bash - \
     && apt-get update && apt-get install -y nodejs \
     && npm install -g npm@latest
@@ -77,7 +77,7 @@ RUN npm cache clean --force \
 # Expose port 8080 which the application uses
 EXPOSE 8080
 
-# Build the application without running tests to speed up the build process in development
+# Build the application without running tests to speed up the build process in production
 RUN ./mvnw clean package -DskipTests -Pprod || (echo "Maven build failed" && exit 1)
 
 # List the contents of the target directory to verify the build
