@@ -252,6 +252,6 @@ jobs:
         echo "Contents of target directory:"
         docker exec test-container ls -la /workspace/app/target || echo "Error: Failed to list target directory"
 
-    - name: Clean up
+    - name: Clean up goood
       if: always()
       run: docker rm -f test-container || true
