@@ -32,20 +32,20 @@ jobs:
 
     - name: Check Docker Hub login
       run: |
-        echo ${{ secrets.DOCKERHUB_USERNAME }}
-        docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+        echo "Checking Docker Hub login..."
+        docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin <<< ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: List directory contents
       run: ls -R
 
     - name: Display Dockerfile contents
-      run: cat .devcontainer/Dockerfile || echo "Dockerfile not found"
+      run: cat jhipster-task-app/.devcontainer/Dockerfile || echo "Dockerfile not found"
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
-        context: .
-        file: .devcontainer/Dockerfile
+        context: ./jhipster-task-app
+        file: ./jhipster-task-app/.devcontainer/Dockerfile
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/5dvtaskimagethelatest:latest
         build-args: |
@@ -90,17 +90,17 @@ jobs:
       if: failure()
       run: |
         echo "Container logs:"
-        docker logs test-container
+        docker logs test-container || echo "Failed to retrieve logs"
         echo "Container processes:"
-        docker top test-container
+        docker top test-container || echo "Failed to retrieve processes"
         echo "Container network:"
-        docker network inspect bridge
+        docker network inspect bridge || echo "Failed to inspect network"
         echo "Java version:"
-        docker exec test-container java -version
+        docker exec test-container java -version || echo "Failed to get Java version"
         echo "Contents of /workspace/app:"
-        docker exec test-container ls -la /workspace/app
+        docker exec test-container ls -la /workspace/app || echo "Failed to list /workspace/app"
         echo "Contents of target directory:"
-        docker exec test-container ls -la /workspace/app/target
+        docker exec test-container ls -la /workspace/app/target || echo "Failed to list target directory"
 
     - name: Clean up
       if: always()
