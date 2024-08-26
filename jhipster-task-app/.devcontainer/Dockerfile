@@ -44,6 +44,9 @@ WORKDIR /workspace/app
 # Copy the application
 COPY . .
 
+# List contents of the current directory
+RUN ls -la
+
 # Remove duplicate test files
 RUN find src/test/java -name "*.java" -type f -delete || true
 
@@ -78,6 +81,9 @@ ENV NPM_CONFIG_PREFIX /usr/local
 
 # Build the application
 RUN ./mvnw clean package -DskipTests -Pdev || (echo "Maven build failed" && exit 1)
+
+# List contents of the target directory
+RUN ls -la target
 
 # Start the application
 CMD ["sh", "-c", "java -jar target/*.jar"]
