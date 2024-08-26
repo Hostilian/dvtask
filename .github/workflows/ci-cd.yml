@@ -1,9 +1,7 @@
 name: Docker Build and Push
-
 on:
   push:
     branches: [ "main" ]
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -22,6 +20,17 @@ jobs:
       with:
         node-version: '18'
 
+    - name: Clean up test directory
+      run: |
+        cd jhipster-task-app
+        if [ -d "src/test/java/ipsum" ]; then
+          find src/test/java/ipsum -type f -exec rm -f {} +
+          rm -rf src/test/java/ipsum
+        fi
+        if [ -d "src/test/java/com/dv/ipsum" ]; then
+          find src/test/java/com/dv/ipsum -type f -name "*.java" -exec sed -i 's/package ipsum/package com.dv.ipsum/g' {} +
+        fi
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
@@ -38,40 +47,31 @@ jobs:
         file: ./jhipster-task-app/.devcontainer/Dockerfile
         push: true
         tags: watashiwa19/5dvtaskimagethelatest:latest
+        build-args: |
+          VARIANT=17
+          INSTALL_MAVEN=true
+          INSTALL_GRADLE=false
+          NODE_VERSION=18
 
     - name: Verify Docker image
       run: |
         docker pull watashiwa19/5dvtaskimagethelatest:latest
         docker inspect watashiwa19/5dvtaskimagethelatest:latest
 
-    - name: Run Docker image and capture logs
+    - name: Run Docker image and check health
       run: |
         docker run -d --name test-container -p 8080:8080 watashiwa19/5dvtaskimagethelatest:latest
-        docker logs -f test-container &
-        DOCKER_PID=$!
         echo "Waiting for application to start (this may take up to 5 minutes)..."
         for i in {1..30}; do
           if curl -sf http://localhost:8080/management/health > /dev/null 2>&1; then
             echo "Application started successfully"
-            kill $DOCKER_PID
             exit 0
           fi
           sleep 10
         done
         echo "Application failed to start within the timeout period"
-        kill $DOCKER_PID
         docker logs test-container
         exit 1
-
-    - name: Check application health
-      run: |
-        if curl -sf http://localhost:8080/management/health > /dev/null 2>&1; then
-          echo "Health check passed"
-        else
-          echo "Health check failed"
-          docker logs test-container
-          exit 1
-        fi
 
     - name: Diagnostic information
       if: failure()
@@ -85,4 +85,10 @@ jobs:
 
     - name: Clean up
       if: always()
-      run: docker rm -f test-container
+      run: docker rm -f test-container || true
+
+    - name: Debug - Docker build logs
+      if: failure()
+      run: |
+        echo "Docker build logs:"
+        docker buildx build --progress=plain --load -t watashiwa19/5dvtaskimagethelatest:latest -f ./jhipster-task-app/.devcontainer/Dockerfile ./jhipster-task-app
