@@ -15,12 +15,12 @@ RUN java -version
 
 # Conditionally install Maven and optionally Gradle
 RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
-    apt-get update && apt-get install -y maven \
-    && mvn --version; \
+        apt-get update && apt-get install -y maven \
+        && mvn --version; \
     fi \
     && if [ "${INSTALL_GRADLE}" = "true" ]; then \
-    apt-get update && apt-get install -y gradle \
-    && gradle --version; \
+        apt-get update && apt-get install -y gradle \
+        && gradle --version; \
     fi
 
 # Install Node.js and npm for any front-end dependencies or build tools
@@ -32,16 +32,18 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
 # Verify Node.js and npm installation
 RUN node --version && npm --version
 
-# Set NODE_HOME environment variable for use with Maven front-end plugin
-ENV NODE_HOME=/usr
-ENV PATH=$NODE_HOME/bin:$PATH
+# Set NODE_HOME environment variable for use with Maven front-end plugin, and update PATH
+ENV NODE_HOME="/usr"
+ENV PATH="$NODE_HOME/bin:$PATH"
+ENV NODE_PATH="/usr/lib/node_modules"
+ENV NPM_CONFIG_PREFIX="/usr/local"
 
 # Install JHipster globally, might be used for generating or managing the project
 RUN npm install -g generator-jhipster
 
 # Install essential tools like Git and Curl
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends git curl
+    && apt-get install -y --no-install-recommends git curl
 
 # Set the working directory inside the container to /workspace/app
 WORKDIR /workspace/app
@@ -60,26 +62,20 @@ RUN mkdir -p .mvn/wrapper
 
 # Download the Maven wrapper jar if it's not already present
 RUN if [ ! -f ".mvn/wrapper/maven-wrapper.jar" ]; then \
-    curl -o .mvn/wrapper/maven-wrapper.jar https://repo.maven.apache.org/maven2/org/apache/maven/maven-wrapper/3.1.0/maven-wrapper-3.1.0.jar; \
+        curl -o .mvn/wrapper/maven-wrapper.jar https://repo.maven.apache.org/maven2/org/apache/maven/maven-wrapper/3.1.0/maven-wrapper-3.1.0.jar; \
     fi
 
 # Download or update the Maven wrapper properties file
 RUN if [ ! -f ".mvn/wrapper/maven-wrapper.properties" ]; then \
-    echo "distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.4/apache-maven-3.8.4-bin.zip" > .mvn/wrapper/maven-wrapper.properties; \
+        echo "distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/${MAVEN_VERSION}/apache-maven-${MAVEN_VERSION}-bin.zip" > .mvn/wrapper/maven-wrapper.properties; \
     fi
 
 # Clear npm cache and install dependencies using npm ci for cleaner installs
-RUN npm cache clean --force && \
-    if [ -f package.json ]; then \
-        npm ci --legacy-peer-deps --no-audit || npm install --legacy-peer-deps --no-audit; \
-    fi
+RUN npm cache clean --force \
+    && (npm ci --legacy-peer-deps --no-audit || npm install --legacy-peer-deps --no-audit)
 
 # Expose port 8080 which the application uses
 EXPOSE 8080
-
-# Set environment variables for Node.js
-ENV NODE_PATH /usr/lib/node_modules
-ENV NPM_CONFIG_PREFIX /usr/local
 
 # Build the application without running tests to speed up the build process in development
 RUN ./mvnw clean package -DskipTests -Pdev || (echo "Maven build failed" && exit 1)
