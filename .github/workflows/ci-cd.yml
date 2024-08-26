@@ -1,9 +1,7 @@
 name: Docker Build and Push
-
 on:
   push:
     branches: [ "main" ]
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -29,11 +27,6 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-    - name: Check Docker Hub login
-      run: |
-        echo "Checking Docker Hub login..."
-        docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin <<< ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: List directory contents
       run: ls -R
