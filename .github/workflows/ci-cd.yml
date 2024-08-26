@@ -1,9 +1,7 @@
-name: CI/CD Pipeline
+name: Docker Build and Push
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
     branches: [ "main" ]
 
 jobs:
@@ -11,24 +9,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'adopt'
+
+    - name: Clean up test directory
+      run: |
+        find src/test/java -name "*.java" -type f -delete
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@v3
 
     - name: Login to Docker Hub
-      uses: docker/login-action@v2
+      uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Build and push Docker image
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v5
       with:
         context: .
         file: ./Dockerfile
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/5dvtaskimagethelatest:latest
+        build-args: |
+          VARIANT=17
+          INSTALL_MAVEN=true
+          INSTALL_GRADLE=true
+          NODE_VERSION=20.15.0
 
     - name: Verify Docker image
       run: |
@@ -81,3 +94,9 @@ jobs:
     - name: Clean up
       if: always()
       run: docker rm -f test-container || true
+
+    - name: Debug - Docker build logs
+      if: failure()
+      run: |
+        echo "Docker build logs:"
+        docker buildx build --progress=plain --load -t ${{ secrets.DOCKERHUB_USERNAME }}/5dvtaskimagethelatest:latest -f ./Dockerfile .
