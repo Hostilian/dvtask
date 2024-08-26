@@ -1,7 +1,9 @@
 name: Docker Build and Push
+
 on:
   push:
     branches: [ "main" ]
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -25,14 +27,16 @@ jobs:
     - name: Check if secrets are set
       run: |
         if [ -z "${{ secrets.DOCKERHUB_USERNAME }}" ]; then
-          echo "DOCKERHUB_USERNAME is not set"
+          echo "Error: DOCKERHUB_USERNAME is not set in GitHub secrets"
+          echo "Please add DOCKERHUB_USERNAME to your repository secrets"
           exit 1
         fi
         if [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
-          echo "DOCKERHUB_TOKEN is not set"
+          echo "Error: DOCKERHUB_TOKEN is not set in GitHub secrets"
+          echo "Please add DOCKERHUB_TOKEN to your repository secrets"
           exit 1
         fi
-        echo "Both DOCKERHUB_USERNAME and DOCKERHUB_TOKEN are set"
+        echo "Both DOCKERHUB_USERNAME and DOCKERHUB_TOKEN are properly set"
 
     - name: Login to Docker Hub
       uses: docker/login-action@v2
@@ -44,7 +48,15 @@ jobs:
       run: ls -R
 
     - name: Display Dockerfile contents
-      run: cat jhipster-task-app/.devcontainer/Dockerfile || echo "Dockerfile not found"
+      run: |
+        if [ -f "jhipster-task-app/.devcontainer/Dockerfile" ]; then
+          cat jhipster-task-app/.devcontainer/Dockerfile
+        else
+          echo "Error: Dockerfile not found at jhipster-task-app/.devcontainer/Dockerfile"
+          echo "Current directory structure:"
+          ls -R
+          exit 1
+        fi
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
@@ -74,7 +86,7 @@ jobs:
             break
           fi
           if [ $i -eq 30 ]; then
-            echo "Application failed to start within the timeout period"
+            echo "Error: Application failed to start within the timeout period"
             docker logs test-container
             exit 1
           fi
@@ -86,7 +98,7 @@ jobs:
         if curl -sf http://localhost:8080/management/health > /dev/null 2>&1; then
           echo "Health check passed"
         else
-          echo "Health check failed"
+          echo "Error: Health check failed"
           docker logs test-container
           exit 1
         fi
@@ -95,17 +107,17 @@ jobs:
       if: failure()
       run: |
         echo "Container logs:"
-        docker logs test-container || echo "Failed to retrieve logs"
+        docker logs test-container || echo "Error: Failed to retrieve logs"
         echo "Container processes:"
-        docker top test-container || echo "Failed to retrieve processes"
+        docker top test-container || echo "Error: Failed to retrieve processes"
         echo "Container network:"
-        docker network inspect bridge || echo "Failed to inspect network"
+        docker network inspect bridge || echo "Error: Failed to inspect network"
         echo "Java version:"
-        docker exec test-container java -version || echo "Failed to get Java version"
+        docker exec test-container java -version || echo "Error: Failed to get Java version"
         echo "Contents of /workspace/app:"
-        docker exec test-container ls -la /workspace/app || echo "Failed to list /workspace/app"
+        docker exec test-container ls -la /workspace/app || echo "Error: Failed to list /workspace/app"
         echo "Contents of target directory:"
-        docker exec test-container ls -la /workspace/app/target || echo "Failed to list target directory"
+        docker exec test-container ls -la /workspace/app/target || echo "Error: Failed to list target directory"
 
     - name: Clean up
       if: always()
