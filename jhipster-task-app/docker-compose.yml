@@ -7,6 +7,12 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod,api-docs
       - JHIPSTER_SLEEP=30 # gives time for other services to boot before the application
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/jhipsterTaskApp
+      - SPRING_DATASOURCE_USERNAME=jhipsterTaskApp
+      - SPRING_DATASOURCE_PASSWORD=
+    depends_on:
+      - postgresql
+
   postgresql:
     image: postgres:14.5
     volumes:
@@ -15,3 +21,5 @@ services:
       - POSTGRES_USER=jhipsterTaskApp
       - POSTGRES_PASSWORD=
       - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - "5432:5432"
