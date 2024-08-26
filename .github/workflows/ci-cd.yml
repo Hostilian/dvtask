@@ -76,14 +76,8 @@ jobs:
         docker top test-container
         echo "Container network:"
         docker network inspect bridge
-        echo "Node.js version:"
-        docker exec test-container node --version
-        echo "npm version:"
-        docker exec test-container npm --version
         echo "Java version:"
         docker exec test-container java -version
-        echo "Environment variables:"
-        docker exec test-container env
         echo "Contents of /workspace/app:"
         docker exec test-container ls -la /workspace/app
         echo "Contents of target directory:"
