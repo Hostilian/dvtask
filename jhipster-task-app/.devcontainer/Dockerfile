@@ -25,7 +25,7 @@ RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
 
 # Install Node.js and npm for any front-end dependencies or build tools
 ARG NODE_VERSION="20.15.0"
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
     && apt-get update && apt-get install -y nodejs \
     && npm install -g npm@latest
 
@@ -51,9 +51,6 @@ COPY . .
 
 # List the contents of the current directory to verify copy
 RUN ls -la
-
-# Remove any duplicate test files to avoid conflicts during builds
-RUN find src/test/java -name "*.java" -type f -delete || true
 
 # Ensure the Maven wrapper is executable
 RUN chmod +x mvnw
