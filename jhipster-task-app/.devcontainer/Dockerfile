@@ -1,19 +1,19 @@
-# Use the official VS Code Java Dev Container with Java 17
+# Use the official VS Code Java Dev Container with Java 17 to match the Java version needed
 ARG VARIANT="17"
 FROM mcr.microsoft.com/vscode/devcontainers/java:0-${VARIANT}
 
-# [Option] Install Maven
+# Install Maven, necessary for building the application
 ARG INSTALL_MAVEN="true"
 ARG MAVEN_VERSION="3.8.4"
 
-# [Option] Install Gradle
+# Optionally, you can install Gradle if needed (set to false by default)
 ARG INSTALL_GRADLE="false"
 ARG GRADLE_VERSION=""
 
-# Ensure the correct version of Java is installed
+# Ensure the correct version of Java is installed and show the version
 RUN java -version
 
-# Install Maven and Gradle
+# Conditionally install Maven and optionally Gradle
 RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
     apt-get update && apt-get install -y maven \
     && mvn --version; \
@@ -23,7 +23,7 @@ RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
     && gradle --version; \
     fi
 
-# Install Node.js and npm
+# Install Node.js and npm for any front-end dependencies or build tools
 ARG NODE_VERSION="20.15.0"
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get update && apt-get install -y nodejs \
@@ -32,63 +32,63 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 # Verify Node.js and npm installation
 RUN node --version && npm --version
 
-# Set NODE_HOME environment variable for Maven plugin
+# Set NODE_HOME environment variable for use with Maven front-end plugin
 ENV NODE_HOME=/usr
 ENV PATH=$NODE_HOME/bin:$PATH
 
-# Install JHipster
+# Install JHipster globally, might be used for generating or managing the project
 RUN npm install -g generator-jhipster
 
-# Install additional tools
+# Install essential tools like Git and Curl
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends git curl
 
-# Set the working directory
+# Set the working directory inside the container to /workspace/app
 WORKDIR /workspace/app
 
-# Copy the application
+# Copy the entire project directory into the container
 COPY . .
 
-# List contents of the current directory
+# List the contents of the current directory to verify copy
 RUN ls -la
 
-# Remove duplicate test files
+# Remove any duplicate test files to avoid conflicts during builds
 RUN find src/test/java -name "*.java" -type f -delete || true
 
-# Ensure mvnw is present and executable
+# Ensure the Maven wrapper is executable
 RUN chmod +x mvnw
 
-# Ensure .mvn directory exists
+# Ensure the .mvn directory is present
 RUN mkdir -p .mvn/wrapper
 
-# Download maven-wrapper.jar if it doesn't exist
+# Download the Maven wrapper jar if it's not already present
 RUN if [ ! -f ".mvn/wrapper/maven-wrapper.jar" ]; then \
     curl -o .mvn/wrapper/maven-wrapper.jar https://repo.maven.apache.org/maven2/org/apache/maven/maven-wrapper/3.1.0/maven-wrapper-3.1.0.jar; \
     fi
 
-# Download maven-wrapper.properties if it doesn't exist
+# Download or update the Maven wrapper properties file
 RUN if [ ! -f ".mvn/wrapper/maven-wrapper.properties" ]; then \
     echo "distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.4/apache-maven-3.8.4-bin.zip" > .mvn/wrapper/maven-wrapper.properties; \
     fi
 
-# Clear npm cache and install dependencies
+# Clear npm cache and install dependencies using npm ci for cleaner installs
 RUN npm cache clean --force && \
     if [ -f package.json ]; then \
         npm ci --legacy-peer-deps --no-audit || npm install --legacy-peer-deps --no-audit; \
     fi
 
-# Expose the port the app runs on
+# Expose port 8080 which the application uses
 EXPOSE 8080
 
 # Set environment variables for Node.js
 ENV NODE_PATH /usr/lib/node_modules
 ENV NPM_CONFIG_PREFIX /usr/local
 
-# Build the application
+# Build the application without running tests to speed up the build process in development
 RUN ./mvnw clean package -DskipTests -Pdev || (echo "Maven build failed" && exit 1)
 
-# List contents of the target directory
+# List the contents of the target directory to verify the build
 RUN ls -la target
 
-# Start the application
+# Command to run the application, uses shell form to handle wildcards properly
 CMD ["sh", "-c", "java -jar target/*.jar"]

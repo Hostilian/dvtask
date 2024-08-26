@@ -79,7 +79,7 @@ jobs:
     - name: Verify Docker image
       run: |
         docker pull ${{ secrets.DOCKER_HUB_USERNAME }} 5dvtaskimagethelatest:latest
-        docker inspect ${{ secrets.DOCKER_HUB_USERNAME }} 5dvtaskimagethelatest:latest
+        docker inspect ${{ secrets.DOCKER_HUB_USERNAME }}5dvtaskimagethelatest:latest
 
     - name: Run Docker image and capture logs
       run: |
