@@ -78,7 +78,7 @@ RUN npm cache clean --force \
 EXPOSE 8080
 
 # Build the application without running tests to speed up the build process in development
-RUN ./mvnw clean package -DskipTests -Pdev || (echo "Maven build failed" && exit 1)
+RUN ./mvnw clean package -DskipTests -Pprod || (echo "Maven build failed" && exit 1)
 
 # List the contents of the target directory to verify the build
 RUN ls -la target

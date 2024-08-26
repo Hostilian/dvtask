@@ -1,10 +1,11 @@
-version: '3'
+version: '3.8'
+
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ${DOCKER_HUB_USERNAME}/jhipster-task-app:latest
+    image: watashiwa19/dvtask:latest
     ports:
       - "8080:8080"
     environment:
@@ -13,17 +14,23 @@ services:
       - MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED=true
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/jhipsterTaskApp
       - SPRING_DATASOURCE_USERNAME=jhipsterTaskApp
-      - SPRING_DATASOURCE_PASSWORD=
+      - SPRING_DATASOURCE_PASSWORD=securepassword
       - JHIPSTER_SLEEP=30
     depends_on:
       - postgresql
+
   postgresql:
     image: postgres:14.5
     volumes:
       - ~/volumes/jhipster/jhipsterTaskApp/postgresql/:/var/lib/postgresql/data/
     environment:
       - POSTGRES_USER=jhipsterTaskApp
-      - POSTGRES_PASSWORD=
+      - POSTGRES_PASSWORD=securepassword
+      - POSTGRES_DB=jhipsterTaskApp
       - POSTGRES_HOST_AUTH_METHOD=trust
     ports:
       - "5432:5432"
+
+volumes:
+  postgres_data:
+    driver: local

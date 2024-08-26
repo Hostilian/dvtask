@@ -46,7 +46,7 @@ jobs:
         context: ./jhipster-task-app
         file: ./jhipster-task-app/.devcontainer/Dockerfile
         push: true
-        tags: watashiwa19/5dvtaskimagethelatest:latest
+        tags: watashiwa19/dvtask:latest
         build-args: |
           VARIANT=17
           INSTALL_MAVEN=true
