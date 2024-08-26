@@ -24,8 +24,8 @@ RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
     fi
 
 # Install Node.js and npm for any front-end dependencies or build tools
-ARG NODE_VERSION="20.15.0"
-RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
+ARG NODE_VERSION="20.x"
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION} | bash - \
     && apt-get update && apt-get install -y nodejs \
     && npm install -g npm@latest
 
