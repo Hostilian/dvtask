@@ -1,13 +1,18 @@
-# See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.209.6/containers/java/.devcontainer/base.Dockerfile
+# Use the official VS Code Java Dev Container with Java 17
 ARG VARIANT="17"
 FROM mcr.microsoft.com/vscode/devcontainers/java:0-${VARIANT}
 
 # [Option] Install Maven
 ARG INSTALL_MAVEN="true"
 ARG MAVEN_VERSION="3.8.4"
+
 # [Option] Install Gradle
 ARG INSTALL_GRADLE="false"
 ARG GRADLE_VERSION=""
+
+# Ensure the correct version of Java is installed
+RUN java -version
+
 # Install Maven and Gradle
 RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
     apt-get update && apt-get install -y maven \
