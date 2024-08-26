@@ -5,11 +5,9 @@ FROM mcr.microsoft.com/vscode/devcontainers/java:0-${VARIANT}
 # [Option] Install Maven
 ARG INSTALL_MAVEN="true"
 ARG MAVEN_VERSION="3.8.4"
-
 # [Option] Install Gradle
 ARG INSTALL_GRADLE="false"
 ARG GRADLE_VERSION=""
-
 # Install Maven and Gradle
 RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
     apt-get update && apt-get install -y maven \
@@ -68,7 +66,7 @@ RUN if [ ! -f ".mvn/wrapper/maven-wrapper.properties" ]; then \
 # Clear npm cache and install dependencies
 RUN npm cache clean --force && \
     if [ -f package.json ]; then \
-        npm ci; \
+        npm ci --legacy-peer-deps; \
     fi
 
 # Run npm audit fix if package.json exists
