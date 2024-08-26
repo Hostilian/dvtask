@@ -66,7 +66,7 @@ RUN if [ ! -f ".mvn/wrapper/maven-wrapper.properties" ]; then \
 # Clear npm cache and install dependencies
 RUN npm cache clean --force && \
     if [ -f package.json ]; then \
-        npm ci --legacy-peer-deps --no-audit; \
+        npm ci --legacy-peer-deps --no-audit || npm install --legacy-peer-deps --no-audit; \
     fi
 
 # Expose the port the app runs on
@@ -77,7 +77,7 @@ ENV NODE_PATH /usr/lib/node_modules
 ENV NPM_CONFIG_PREFIX /usr/local
 
 # Build the application
-RUN ./mvnw clean package -DskipTests -Pdev
+RUN ./mvnw clean package -DskipTests -Pdev || (echo "Maven build failed" && exit 1)
 
 # Start the application
 CMD ["sh", "-c", "java -jar target/*.jar"]

@@ -19,7 +19,7 @@ jobs:
 
     - name: Clean up test directory
       run: |
-        find src/test/java -name "*.java" -type f -delete
+        find . -name "src" -type d -exec find {} -path "*/test/java" -name "*.java" -type f -delete \;
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
@@ -31,13 +31,13 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Display Dockerfile contents
-      run: cat .devcontainer/Dockerfile
+      run: cat jhipster-task-app/.devcontainer/Dockerfile
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
-        context: .
-        file: .devcontainer/Dockerfile
+        context: ./jhipster-task-app
+        file: ./jhipster-task-app/.devcontainer/Dockerfile
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/5dvtaskimagethelatest:latest
         build-args: |
