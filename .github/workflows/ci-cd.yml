@@ -19,7 +19,6 @@ jobs:
 
     - name: Clean up test directory
       run: |
-        cd jhipster-task-app
         find src/test/java -name "*.java" -type f -delete
 
     - name: Set up Docker Buildx
@@ -31,11 +30,14 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+    - name: Display Dockerfile contents
+      run: cat .devcontainer/Dockerfile
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
-        context: ./jhipster-task-app
-        file: ./jhipster-task-app/.devcontainer/Dockerfile
+        context: .
+        file: .devcontainer/Dockerfile
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/5dvtaskimagethelatest:latest
         build-args: |

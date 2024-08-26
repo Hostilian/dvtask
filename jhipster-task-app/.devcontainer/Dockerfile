@@ -66,12 +66,7 @@ RUN if [ ! -f ".mvn/wrapper/maven-wrapper.properties" ]; then \
 # Clear npm cache and install dependencies
 RUN npm cache clean --force && \
     if [ -f package.json ]; then \
-        npm ci --legacy-peer-deps; \
-    fi
-
-# Run npm audit fix if package.json exists
-RUN if [ -f package.json ]; then \
-    npm audit fix --force || true; \
+        npm ci --legacy-peer-deps --no-audit; \
     fi
 
 # Expose the port the app runs on
