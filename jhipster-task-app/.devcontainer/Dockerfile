@@ -1,44 +1,31 @@
-# See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.209.6/containers/java/.devcontainer/base.Dockerfile
-ARG VARIANT="17"
-FROM mcr.microsoft.com/vscode/devcontainers/java:0-${VARIANT}
+# Use a base image with Java 17
+FROM eclipse-temurin:17-jdk-focal
 
-# [Option] Install Maven
-ARG INSTALL_MAVEN="true"
-ARG MAVEN_VERSION="3.8.4"
+# Set environment variables
+ENV NODE_VERSION=20.15.0
+ENV MAVEN_VERSION=3.8.4
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
-# [Option] Install Gradle
-ARG INSTALL_GRADLE="false"
-ARG GRADLE_VERSION=""
-
-# Install Maven and Gradle
-RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
-    apt-get update && apt-get install -y maven \
-    && mvn --version; \
-    fi \
-    && if [ "${INSTALL_GRADLE}" = "true" ]; then \
-    apt-get update && apt-get install -y gradle \
-    && gradle --version; \
-    fi
+# Install necessary tools
+RUN apt-get update && apt-get install -y curl git
 
 # Install Node.js and npm
-ARG NODE_VERSION="20.15.0"
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get update && apt-get install -y nodejs \
+    && apt-get install -y nodejs \
     && npm install -g npm@latest
 
-# Verify Node.js and npm installation
-RUN node --version && npm --version
+# Install Maven
+RUN curl -fsSL https://apache.osuosl.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz | tar xzf - -C /opt/ \
+    && ln -s /opt/apache-maven-${MAVEN_VERSION} /opt/maven \
+    && ln -s /opt/maven/bin/mvn /usr/local/bin/mvn
 
-# Set NODE_HOME environment variable for Maven plugin
-ENV NODE_HOME=/usr
-ENV PATH=$NODE_HOME/bin:$PATH
+# Set Maven environment variables
+ENV MAVEN_HOME=/opt/maven
+ENV PATH="${MAVEN_HOME}/bin:${PATH}"
 
 # Install JHipster
 RUN npm install -g generator-jhipster
-
-# Install additional tools
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends git curl
 
 # Set the working directory
 WORKDIR /workspace/app
@@ -52,36 +39,14 @@ RUN find src/test/java -name "*.java" -type f -delete
 # Ensure mvnw is present and executable
 RUN chmod +x mvnw
 
-# Ensure .mvn directory exists
-RUN mkdir -p .mvn/wrapper
-
-# Download maven-wrapper.jar if it doesn't exist
-RUN if [ ! -f ".mvn/wrapper/maven-wrapper.jar" ]; then \
-    curl -o .mvn/wrapper/maven-wrapper.jar https://repo.maven.apache.org/maven2/org/apache/maven/maven-wrapper/3.1.0/maven-wrapper-3.1.0.jar; \
-    fi
-
-# Download maven-wrapper.properties if it doesn't exist
-RUN if [ ! -f ".mvn/wrapper/maven-wrapper.properties" ]; then \
-    echo "distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.4/apache-maven-3.8.4-bin.zip" > .mvn/wrapper/maven-wrapper.properties; \
-    fi
-
 # Clear npm cache and install dependencies
 RUN npm cache clean --force && \
     if [ -f package.json ]; then \
         npm ci; \
     fi
 
-# Run npm audit fix if package.json exists
-RUN if [ -f package.json ]; then \
-    npm audit fix --force || true; \
-    fi
-
 # Expose the port the app runs on
 EXPOSE 8080
-
-# Set environment variables for Node.js
-ENV NODE_PATH /usr/lib/node_modules
-ENV NPM_CONFIG_PREFIX /usr/local
 
 # Build the application
 RUN ./mvnw clean package -DskipTests -Pdev
