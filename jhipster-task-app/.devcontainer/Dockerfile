@@ -47,7 +47,7 @@ WORKDIR /workspace/app
 COPY . .
 
 # Remove duplicate test files
-RUN find src/test/java -name "*.java" -type f -delete
+RUN find src/test/java -name "*.java" -type f -delete || true
 
 # Ensure mvnw is present and executable
 RUN chmod +x mvnw
