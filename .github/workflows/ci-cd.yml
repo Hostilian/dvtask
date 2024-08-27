@@ -1,10 +1,13 @@
 name: Docker Build and Push
+
 on:
   push:
     branches: [ "main" ]
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -45,13 +48,8 @@ jobs:
     - name: Clean up test directory
       run: |
         cd jhipster-task-app
-        if [ -d "src/test/java/ipsum" ]; then
-          find src/test/java/ipsum -type f -exec rm -f {} +
-          rm -rf src/test/java/ipsum
-        fi
-        if [ -d "src/test/java/com/dv/ipsum" ]; then
-          find src/test/java/com/dv/ipsum -type f -name "*.java" -exec sed -i 's/package ipsum/package com.dv.ipsum/g' {} +
-        fi
+        find src/test/java -type f -name "*.java" -exec rm -f {} +
+        find src/test/java -type d -empty -delete
 
     - name: Set Maven Wrapper Permissions
       run: |
@@ -84,7 +82,7 @@ jobs:
         context: ./jhipster-task-app
         file: ./jhipster-task-app/.devcontainer/Dockerfile
         push: true
-        tags: watashiwa19/dvtask:latest
+        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/dvtask:latest
         build-args: |
           VARIANT=17
           INSTALL_MAVEN=true
@@ -93,8 +91,8 @@ jobs:
 
     - name: Verify Docker image
       run: |
-        docker pull watashiwa19/dvtask:latest
-        docker inspect watashiwa19/dvtask:latest
+        docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/dvtask:latest
+        docker inspect ${{ secrets.DOCKER_HUB_USERNAME }}/dvtask:latest
 
     - name: Run Docker Compose
       run: |
@@ -126,11 +124,11 @@ jobs:
       if: always()
       run: |
         cd jhipster-task-app/src/main/docker
-        docker-compose -f app.yml down
+        docker-compose down
         docker rm -f $(docker ps -aq) || true
 
     - name: Debug - Docker build logs
       if: failure()
       run: |
         echo "Docker build logs:"
-        docker buildx build --progress=plain --load -t watashiwa19/dvtask:latest -f ./jhipster-task-app/.devcontainer/Dockerfile ./jhipster-task-app
+        docker buildx build --progress=plain --load -t ${{ secrets.DOCKER_HUB_USERNAME }}/dvtask:latest -f ./jhipster-task-app/.devcontainer/Dockerfile ./jhipster-task-app
