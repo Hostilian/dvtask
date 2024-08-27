@@ -70,9 +70,13 @@ RUN if [ ! -f ".mvn/wrapper/maven-wrapper.properties" ]; then \
         echo "distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/${MAVEN_VERSION}/apache-maven-${MAVEN_VERSION}-bin.zip" > .mvn/wrapper/maven-wrapper.properties; \
     fi
 
-# Remove duplicate test classes
-RUN find src/test/java/ipsum -type f -delete && \
-    find src/test/java/com/dv/ipsum -type f -name "*.java" -exec sed -i 's/package ipsum/package com.dv.ipsum/g' {} +
+# Remove duplicate test classes (if they exist)
+RUN if [ -d "src/test/java/ipsum" ]; then \
+        find src/test/java/ipsum -type f -delete; \
+    fi \
+    && if [ -d "src/test/java/com/dv/ipsum" ]; then \
+        find src/test/java/com/dv/ipsum -type f -name "*.java" -exec sed -i 's/package ipsum/package com.dv.ipsum/g' {} +; \
+    fi
 
 # Clear npm cache and install dependencies using npm ci for cleaner installs
 RUN npm cache clean --force \

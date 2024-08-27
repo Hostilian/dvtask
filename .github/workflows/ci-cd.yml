@@ -34,6 +34,11 @@ jobs:
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: ${{ runner.os }}-node-
 
+    - name: Debug - List directory contents
+      run: |
+        cd jhipster-task-app
+        ls -R src/test/java
+
     - name: Clean up test directory
       run: |
         cd jhipster-task-app
