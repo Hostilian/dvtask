@@ -1,3 +1,4 @@
+version: '3.8'
 name: jhipstertaskapp
 services:
   app:
@@ -13,17 +14,16 @@ services:
     ports:
       - 127.0.0.1:8080:8080
     healthcheck:
-      test:
-        - CMD
-        - curl
-        - -f
-        - http://localhost:8080/management/health
+      test: ["CMD", "curl", "-f", "http://localhost:8080/management/health"]
       interval: 5s
       timeout: 5s
       retries: 40
     depends_on:
       postgresql:
         condition: service_healthy
+    networks:
+      - jhipster-network
+
   postgresql:
     extends:
       file: ./postgresql.yml
@@ -37,3 +37,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - jhipster-network
+
+networks:
+  jhipster-network:
+    driver: bridge

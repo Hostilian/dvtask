@@ -45,6 +45,9 @@ RUN npm install -g generator-jhipster
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get install -y --no-install-recommends git curl
 
+# Install curl for health check
+RUN apt-get update && apt-get install -y curl
+
 # Set the working directory inside the container to /workspace/app
 WORKDIR /workspace/app
 
@@ -95,4 +98,4 @@ RUN ls -la target
 ENV JAVA_HOME=/usr/lib/jvm/msopenjdk-current
 
 # Command to run the application, uses shell form to handle wildcards properly
-CMD ["sh", "-c", "$JAVA_HOME/bin/java -jar target/*.jar"]
+CMD ["sh", "-c", "$JAVA_HOME/bin/java $JAVA_OPTS -jar target/*.jar"]

@@ -72,6 +72,12 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
+    - name: Set up Docker Compose
+      run: |
+        sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+        docker-compose --version
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
@@ -90,19 +96,20 @@ jobs:
         docker pull watashiwa19/dvtask:latest
         docker inspect watashiwa19/dvtask:latest
 
-    - name: Run Docker image and check health
+    - name: Run Docker Compose
       run: |
-        docker run -d --name test-container -p 8080:8080 watashiwa19/dvtask:latest
-        echo "Waiting for application to start (this may take up to 10 minutes)..."
+        cd jhipster-task-app/src/main/docker
+        docker-compose -f app.yml up -d
+        echo "Waiting for application to start (this may take up to 5 minutes)..."
         for i in {1..60}; do
           if curl -sf http://localhost:8080/management/health > /dev/null 2>&1; then
             echo "Application started successfully"
             exit 0
           fi
-          sleep 10
+          sleep 5
         done
         echo "Application failed to start within the timeout period"
-        docker logs test-container
+        docker-compose logs
         exit 1
 
     - name: Diagnostic information
@@ -117,7 +124,10 @@ jobs:
 
     - name: Clean up
       if: always()
-      run: docker rm -f test-container || true
+      run: |
+        cd jhipster-task-app/src/main/docker
+        docker-compose -f app.yml down
+        docker rm -f test-container || true
 
     - name: Debug - Docker build logs
       if: failure()
