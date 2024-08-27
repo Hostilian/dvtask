@@ -1,7 +1,7 @@
 name: jhipstertaskapp
 services:
   app:
-    image: watashiwa19/5dvtaskimagethelatest:latest
+    image: watashiwa19/dvtask:latest
     environment:
       - _JAVA_OPTIONS=-Xmx512m -Xms256m
       - SPRING_PROFILES_ACTIVE=prod,api-docs
