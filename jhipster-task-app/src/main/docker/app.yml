@@ -1,5 +1,4 @@
 version: '3.8'
-name: jhipstertaskapp
 services:
   app:
     image: watashiwa19/dvtask:latest
@@ -21,8 +20,6 @@ services:
     depends_on:
       postgresql:
         condition: service_healthy
-    networks:
-      - jhipster-network
 
   postgresql:
     extends:
@@ -37,9 +34,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-    networks:
-      - jhipster-network
 
 networks:
-  jhipster-network:
-    driver: bridge
+  default:
+    name: jhipster-network
