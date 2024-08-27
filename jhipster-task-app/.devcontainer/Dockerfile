@@ -91,5 +91,8 @@ RUN ./mvnw clean package -DskipTests -Pprod || (echo "Maven build failed" && exi
 # List the contents of the target directory to verify the build
 RUN ls -la target
 
+# Set JAVA_HOME to ensure Java 17 is used
+ENV JAVA_HOME=/usr/lib/jvm/msopenjdk-current
+
 # Command to run the application, uses shell form to handle wildcards properly
-CMD ["sh", "-c", "java -jar target/*.jar"]
+CMD ["sh", "-c", "$JAVA_HOME/bin/java -jar target/*.jar"]
