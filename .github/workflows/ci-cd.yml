@@ -45,6 +45,11 @@ jobs:
           find src/test/java/com/dv/ipsum -type f -name "*.java" -exec sed -i 's/package ipsum/package com.dv.ipsum/g' {} +
         fi
 
+    - name: Set Maven Wrapper Permissions
+      run: |
+        cd jhipster-task-app
+        chmod +x mvnw
+
     - name: Run tests
       run: |
         cd jhipster-task-app
