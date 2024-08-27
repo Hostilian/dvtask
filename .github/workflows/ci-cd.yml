@@ -82,7 +82,7 @@ jobs:
         context: ./jhipster-task-app
         file: ./jhipster-task-app/.devcontainer/Dockerfile
         push: true
-        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/dvtask:latest
+        tags: watashiwa19/dvtask:latest
         build-args: |
           VARIANT=17
           INSTALL_MAVEN=true
