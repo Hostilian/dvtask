@@ -23,11 +23,11 @@ RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
         && gradle --version; \
     fi
 
-    RUN apt-get update && apt-get install -y curl
-    RUN curl -L https://raw.githubusercontent.com/tj/n/master/bin/n -o n \
-        && bash n lts \
-        && npm install -g npm@latest \
-        && rm n
+# Install Node.js and npm
+ARG NODE_VERSION="20"
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm@latest
 
 # Verify Node.js and npm installation
 RUN node --version && npm --version
