@@ -116,9 +116,9 @@ jobs:
       if: failure()
       run: |
         echo "Container logs:"
-        docker logs test-container
+        docker logs $(docker ps -aq)
         echo "Container processes:"
-        docker top test-container
+        docker top $(docker ps -aq)
         echo "Container network:"
         docker network inspect bridge
 
@@ -127,7 +127,7 @@ jobs:
       run: |
         cd jhipster-task-app/src/main/docker
         docker-compose -f app.yml down
-        docker rm -f test-container || true
+        docker rm -f $(docker ps -aq) || true
 
     - name: Debug - Docker build logs
       if: failure()
