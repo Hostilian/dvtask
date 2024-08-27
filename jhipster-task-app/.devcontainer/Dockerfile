@@ -23,8 +23,7 @@ RUN if [ "${INSTALL_MAVEN}" = "true" ]; then \
         && gradle --version; \
     fi
 
-# Install Node.js and npm for any front-end dependencies or build tools
-ARG NODE_VERSION="20.x"
+ARG NODE_VERSION="20"
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION} | bash - \
     && apt-get update && apt-get install -y nodejs \
     && npm install -g npm@latest
