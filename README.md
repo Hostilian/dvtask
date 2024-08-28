@@ -50,10 +50,12 @@
   or docker-compose -f src/main/docker/app.yml up -d
   ```
   -docker build -t watashiwa19/dvtask:latest -f jhipster-task-app/.devcontainer/Dockerfile jhipster-task-app
- -docker push watashiwa19/dvtask:latest
-  -docker-compose -f jhipster-task-app/src/main/docker/app.yml up
-Push the updated image to Docker Hub:
 
+  -docker push watashiwa19/dvtask:latest
+
+  -docker-compose -f jhipster-task-app/src/main/docker/app.yml up
+
+Push the updated image to Docker Hub:
 
 ### 🧪 Testing Rituals 🔬
 - Summon all tests:     `./mvnw verify`
