@@ -12,6 +12,9 @@
 ```
 
 ## 🚀 Welcome to the TaskManager App! 🚀
+* ```
+    strongly adviced to read :
+  https://www.jhipster.tech/docker-compose/
 
 ### 🧙‍♂️ Quick Start Incantation 🧙‍♀️
 
