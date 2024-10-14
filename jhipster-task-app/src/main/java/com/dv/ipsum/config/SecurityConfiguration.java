@@ -48,7 +48,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http, MvcRequestMatcher.Builder mvc) throws Exception {
         http
             .cors(withDefaults())
-            .csrf(csrf -> csrf.disable())
+            .csrf(withDefaults())
             .addFilterAfter(new SpaWebFilter(), BasicAuthenticationFilter.class)
             .headers(
                 headers ->
